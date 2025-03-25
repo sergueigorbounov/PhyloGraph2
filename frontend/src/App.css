@@ -1,0 +1,193 @@
+/* === GLOBAL BASE === */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100vw;
+  background-color: #000;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* === APP WRAPPER === */
+.app {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* === TOP MENU === */
+.top-menu {
+  backdrop-filter: blur(6px);
+background-color: rgba(0, 0, 0, 0.85);
+box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+width: 100%;
+  position: fixed;
+  top: 0;
+  background-color: #000;
+  z-index: 9999;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  align-items: center;
+ 
+  height: 64px;
+ 
+}
+
+.top-menu-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.top-menu a {
+  color: #66ffcc;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.95rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.top-menu a:hover {
+  background-color: rgba(102, 255, 204, 0.1);
+}
+
+/* === TITLE & INFO BOXES === */
+.title-box {
+  position: absolute;
+  top: 50%;
+  left: 1.5rem;
+  transform: translateY(-50%);
+  color: white;
+  text-align: left;
+  z-index: 1100;
+  line-height: 1.3;
+}
+
+.title-box h1 {
+  font-size: 1rem;
+  color: white;
+  font-weight: 600;
+}
+
+.title-box p {
+  font-size: 0.7rem;
+  color: #ccc;
+  font-style: italic;
+}
+
+.title-box span {
+  font-size: 1rem;
+  color: #66ffcc;
+}
+
+.info-box {
+  position: absolute;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  text-align: right;
+  z-index: 1100;
+  color: white;
+  line-height: 1.4;
+}
+
+.info-box p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #ccc;
+}
+
+.info-box span {
+  font-size: 0.85rem;
+  color: #66ffcc;
+  font-weight: 500;
+}
+
+/* === SECTION LAYOUT === */
+.section {
+  width: 100%;
+  padding: 2rem 1rem;
+}
+
+.full-width {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section > * {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* === GRAPH CONTAINER === */
+.graph-container {
+  width: 100vw;
+  max-width: 100%;
+  height: 600px;
+  margin: 2rem 0;
+  position: relative;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  border: 1px solid #30363d;
+  background-color: #0d1117; 
+  padding: 1rem;
+  box-shadow: 0 0 0 1px #30363d, 0 4px 12px rgba(0,0,0,0.1);
+
+}
+.menu-center {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: -29rem;
+}
+
+.main-content {
+  padding-top: 80px;
+}
+
+@media (max-width: 768px) {
+  .menu-center {
+    margin-left: 4rem;
+    gap: 1rem;
+  }
+}
+.top-menu-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.menu-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+.top-menu::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+}

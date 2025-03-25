@@ -1,0 +1,37 @@
+.searchbar-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  height: 50px;                /* ✅ total height */
+  margin-top: 1rem;
+  margin-bottom: 1rem;         /* ✅ pull up closer to graph */
+}
+
+  
+  .searchbar-wrapper input {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #111;
+    color: #fff;
+    min-width: 200px;
+  }
+  
+  .searchbar-wrapper button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #222; 
+    color: #aeaeae;
+    border: 1px solid #626262;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .searchbar-wrapper button:hover {
+    background-color: rgba(195, 195, 195, 0.373);
+  }
+  

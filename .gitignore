@@ -1,0 +1,15 @@
+# Ignore Python virtual environments
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+
+# Node/Vite stuff
+node_modules/
+dist/
+.env
+.DS_Store
+
+# VSCode/IDE
+.vscode/
+.idea/
