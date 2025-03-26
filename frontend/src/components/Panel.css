@@ -1,0 +1,47 @@
+.panel-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: #1e1e1e;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #333;
+    box-shadow: 0 0 10px #00000040;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  
+  .panel-wrapper input {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #121212;
+    color: white;
+    font-size: 1rem;
+    width: 100%;
+  }
+  
+  .panel-wrapper button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    background-color: #222;
+    color: #ccc;
+    font-size: 1rem;
+    border: 1px solid #444;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .panel-wrapper button:hover {
+    background-color: #333;
+  }
+  
+  .panel-wrapper pre {
+    background: #111;
+    padding: 1rem;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 0.9rem;
+    overflow-x: auto;
+  }
+  

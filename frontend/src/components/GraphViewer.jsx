@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import edgehandles from 'cytoscape-edgehandles';
+import { motion } from 'framer-motion';
 
 cytoscape.use(fcose);
 cytoscape.use(edgehandles);
@@ -78,15 +79,21 @@ export default function GraphViewer({ elements }) {
 
   return (
     <div className="graph-container">
-
-      <CytoscapeComponent
+      <motion.div
         key={layoutKey}
-        elements={elements}
-        layout={layout}
-        stylesheet={stylesheet}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
         style={{ width: '100%', height: '100%' }}
-        cy={handleCytoscapeReady}
-      />
+      >
+        <CytoscapeComponent
+          elements={elements}
+          layout={layout}
+          stylesheet={stylesheet}
+          style={{ width: '100%', height: '100%' }}
+          cy={handleCytoscapeReady}
+        />
+      </motion.div>
     </div>
   );
 }

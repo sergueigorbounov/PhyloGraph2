@@ -1,37 +1,50 @@
 .searchbar-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  height: 50px;                /* ✅ total height */
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
   margin-top: 1rem;
-  margin-bottom: 1rem;         /* ✅ pull up closer to graph */
+  margin-bottom: 0.5rem;
 }
 
-  
-  .searchbar-wrapper input {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background-color: #111;
-    color: #fff;
-    min-width: 200px;
-  }
-  
-  .searchbar-wrapper button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    background-color: #222; 
-    color: #aeaeae;
-    border: 1px solid #626262;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .searchbar-wrapper button:hover {
-    background-color: rgba(195, 195, 195, 0.373);
-  }
-  
+.searchbar-input {
+  flex-grow: 1;
+  display: flex;
+}
+
+.searchbar-input input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background-color: #111;
+  color: #fff;
+}
+
+.searchbar-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.searchbar-buttons button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #222;
+  color: #aeaeae;
+  border: 1px solid #626262;
+  border-radius: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.searchbar-buttons button:hover {
+  background-color: rgba(195, 195, 195, 0.373);
+}
+
+.searchbar-buttons .rdf-download {
+  white-space: nowrap;
+}

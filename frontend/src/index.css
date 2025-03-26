@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -36,4 +40,168 @@ body {
 /* Optional reset */
 * {
   box-sizing: border-box;
+}
+.panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #333;
+  margin: 2rem auto;
+  max-width: 720px;
+  box-shadow: 0 0 10px #00000040;
+}
+
+.panel-wrapper input,
+.panel-wrapper textarea {
+  padding: 0.8em 1em;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #121212;
+  color: white;
+  font-size: 1em;
+  width: 100%;
+}
+
+.panel-wrapper button {
+  width: fit-content;
+}
+input, textarea, button {
+  font-size: clamp(0.9rem, 1vw, 1rem);
+}
+.panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #333;
+  margin: 2rem auto;
+  max-width: 720px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px #00000040;
+}
+
+.panel-wrapper input,
+.panel-wrapper textarea {
+  padding: 0.8em 1em;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #121212;
+  color: white;
+  font-size: 1em;
+  width: 100%;
+}
+.panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #333;
+  margin: 1rem auto;
+  max-width: 720px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px #00000040;
+}
+
+.panel-wrapper input,
+.panel-wrapper textarea {
+  padding: 0.8em 1em;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #121212;
+  color: white;
+  font-size: 1em;
+  width: 100%;
+}
+.panel-wrapper input,
+.panel-wrapper textarea,
+.searchbar-wrapper input {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #111;
+  color: white;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.panel-wrapper button,
+.searchbar-wrapper button {
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.panel-wrapper button:hover,
+.searchbar-wrapper button:hover {
+  background: #333;
+}
+.panel-wrapper input,
+.panel-wrapper textarea,
+.searchbar-wrapper input {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #111;
+  color: white;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.panel-wrapper button,
+.searchbar-wrapper button {
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.panel-wrapper button:hover,
+.searchbar-wrapper button:hover {
+  background: #333;
+}
+.panel-wrapper input,
+.panel-wrapper textarea,
+.searchbar-wrapper input {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #111;
+  color: white;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.panel-wrapper button,
+.searchbar-wrapper button {
+  background: #222;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.panel-wrapper button:hover,
+.searchbar-wrapper button:hover {
+  background: #333;
 }

@@ -1,16 +1,31 @@
 import { useEffect, useState } from 'react';
+import { Download, Search, RefreshCcw } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import GraphViewer from './components/GraphViewer';
 import RDFDownloader from './components/RDFDownloader';
 import SPARQLPanel from './components/SPARQLPanel';
 import NLQPanel from './components/NLQPanel';
 import AskPanel from './components/AskPanel';
+import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
+import { Toaster, toast } from 'react-hot-toast';
+import CSVToRDFPanel from './components/CSVToRDFPanel';
 
 function App() {
   const [elements, setElements] = useState([]);
+  const [activePanel, setActivePanel] = useState('graph');
 
   useEffect(() => {
+    const stored = localStorage.getItem('activePanel');
+    if (stored) setActivePanel(stored);
+    loadDemoGraph();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('activePanel', activePanel);
+  }, [activePanel]);
+
+  const loadDemoGraph = () => {
     const demo = [
       {
         gene_id: "AT1G01010",
@@ -28,14 +43,15 @@ function App() {
       }
     ];
 
-    const startupElements = demo.flatMap(item => ([
+    const demoElements = demo.flatMap(item => ([
       { data: { id: item.gene_id, label: item.gene_label } },
       { data: { id: item.trait_label, label: item.trait_label } },
       { data: { source: item.gene_id, target: item.trait_label, label: 'associatedWith' } }
     ]));
 
-    setElements(startupElements);
-  }, []);
+    setElements(demoElements);
+    toast.success('Demo graph loaded');
+  };
 
   const handleGraphUpdate = (data) => {
     const newElements = data.flatMap(item => ([
@@ -50,9 +66,14 @@ function App() {
     setElements([]);
   };
 
+  const panelVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  };
+
   return (
     <div className="app">
-      {/* Top navigation bar */}
       <nav className="top-menu">
         <div className="top-menu-inner">
           <div className="title-box">
@@ -60,46 +81,60 @@ function App() {
           </div>
 
           <div className="menu-center">
-            <a href="#graph">Graph</a>
-            <a href="#rdf">RDF</a>
-            <a href="#sparql">SPARQL</a>
-            <a href="#ask">LLM (Mistral)</a>
-            <a href="#nlq">NLQ</a>
+            <button onClick={() => setActivePanel('sparql')}>SPARQL</button>
+            <button onClick={() => setActivePanel('ask')}>LLM (Mistral)</button>
+            <button onClick={() => setActivePanel('nlq')}>NLQ</button>
+            <button onClick={() => setActivePanel('csv')}>CSV ➝ RDF</button>
           </div>
 
           <div className="info-box">
             <p>FAIR Semantic Graph Explorer for Gene-Function-Trait Links in Translational Plant Genomics</p>
-            <span>PEPR Agroecology - AgroDiv & BReIF / URGI & CNRGV, INRAE</span>
+            <span>PEPR Agroecology – AgroDiv & BReIF / URGI & CNRGV, INRAE</span>
           </div>
         </div>
       </nav>
 
-      {/* Body layout */}
-      <main className="main-content">
-        <section className="section full-width">
-          <SearchBar onGraphUpdate={handleGraphUpdate} onClearGraph={handleClearGraph} />
-        </section>
+      <main className="main-content split-layout">
+  <div className="left-panel">
+    <SearchBar
+      onGraphUpdate={handleGraphUpdate}
+      onClearGraph={handleClearGraph}
+      onLoadDemo={loadDemoGraph}
+    />
+    <GraphViewer elements={elements} />
+  </div>
 
-        <section id="graph" className="section full-width">
-          <GraphViewer elements={elements} />
-        </section>
+  <div className="right-panel bg-[#0c0c0c] h-full overflow-y-auto p-4 space-y-6">
+  {/* Panels inside here will scroll independently */}
 
-        <section id="rdf" className="section full-width">
-          <RDFDownloader />
-        </section>
-
-        <section id="sparql" className="section full-width">
+    <AnimatePresence mode="wait">
+      {activePanel === 'sparql' && (
+        <motion.div key="sparql" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
           <SPARQLPanel />
-        </section>
-
-        <section id="ask" className="section full-width">
+        </motion.div>
+      )}
+      {activePanel === 'ask' && (
+        <motion.div key="ask" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
           <AskPanel />
-        </section>
-
-        <section id="nlq" className="section full-width">
+        </motion.div>
+      )}
+      {activePanel === 'nlq' && (
+        <motion.div key="nlq" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
           <NLQPanel />
-        </section>
-      </main>
+        </motion.div>
+      )}
+      {activePanel === 'csv' && (
+  <motion.div key="csv" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
+          
+    <CSVToRDFPanel />
+  </motion.div>
+)}
+    </AnimatePresence>
+  </div>
+</main>
+
+
+
     </div>
   );
 }
