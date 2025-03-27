@@ -1,59 +1,117 @@
-# PhyloGraph – Visualisation interactive de gènes, traits et graphes RDF  
-### Graph-based viewer for gene-to-trait relationships with RDF & semantic web interoperability
+# ![PhyloGraph.png](frontend/public/PhyloGraph.png)PhyloGraph – Visualisation interactive de gènes, traits et graphes RDF  
+### Graph-based semantic viewer for gene-to-trait relationships
 
 ---
 
-##  Présentation
-
-**PhyloGraph** est une application web interactive développée dans le cadre des projets **BReIF** et **AgroDiv** (PEPR Agroécologie et Numérique), destinée à l’intégration, l’exploration et la visualisation de relations biologiques complexes (gènes, traits, ontologies) via des graphes RDF et des APIs sémantiques.
-
-Elle permet aux chercheurs :
-
-- De visualiser dynamiquement les associations gène-trait
-- D’exporter les graphes au format RDF (Turtle)
-- D’interroger les données via un langage naturel (avec LLM)
-- De favoriser l'interopérabilité avec des bases telles que **SyntenyViewer**, **FAIDARE**, **AgroPortal** ou **Neo4j**
-
----
-
-##  Overview
-
-**PhyloGraph** is a cutting-edge bioinformatics web interface, built to support INRAE’s needs in genomic data federation and semantic exploration. Developed under the **BReIF** and **AgroDiv** projects (PEPR Agroecology & Digital), it empowers researchers to:
-
-- Dynamically explore gene-to-trait semantic links
-- Export graph structures as RDF (Turtle)
-- Validate trait ontologies (TO)
-- Support integration with LLM/NLP modules for natural language querying
-- Interact with graph DBs like **Neo4j**, **FAIDARE**, **AgroBRC**, and **SyntenyViewer**
+![Vercel](https://img.shields.io/badge/Vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-%2346E3B7.svg?style=for-the-badge&logo=render&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-%23009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)
+![RDFLib](https://img.shields.io/badge/RDFLib-%232965B5.svg?style=for-the-badge&logo=semanticweb&logoColor=white)
+![Cytoscape.js](https://img.shields.io/badge/Cytoscape.js-%23121212.svg?style=for-the-badge&logo=graphcool&logoColor=white)
+![React](https://img.shields.io/badge/React-%2361DAFB.svg?style=for-the-badge&logo=react&logoColor=black)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-%2306B6D4.svg?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![SPARQL](https://img.shields.io/badge/SPARQL-%231E90FF.svg?style=for-the-badge&logo=w3c&logoColor=white)
+![FAIR Data](https://img.shields.io/badge/FAIR%20Data-%234CAF50.svg?style=for-the-badge&logo=data&logoColor=white)
 
 ---
 
-##  Stack technique / Tech stack
+## Scientific Abstract / Résumé scientifique
 
-| Frontend         | Backend            | Sémantique / Données       | Visualisation  |
-|------------------|--------------------|----------------------------|----------------|
-| React + Vite     | FastAPI (Python)   | RDFLib, SPARQLWrapper      | Cytoscape.js   |
-| Axios            | Uvicorn            | TO Ontology (AgroPortal)   |                |
-| HTML/CSS         | pydantic           | Neo4j (planned)            |                |
+**PhyloGraph** is a scientific web interface for dynamically visualizing and querying semantic associations between genes and traits using RDF and ontology standards. Designed for the **BReIF** and **AgroDiv** projects under the **PEPR Agroécologie et Numérique**, PhyloGraph helps researchers explore complex biological relationships in a visually interactive, semantically interoperable and FAIR-compliant way.
+
+> Ce projet vise à fédérer les connaissances autour des relations fonctionnelles gène-trait au sein de graphes RDF, en s'appuyant sur des ontologies comme TO et sur l’interopérabilité avec les grandes plateformes INRAE (SyntenyViewer, FAIDARE...).
 
 ---
 
-##  Fonctionnalités clés / Core Features
+## Architecture
 
-| Endpoint            |          Fonction / Function             |
-|---------------------|------------------------------------------|
-| `/graph`            | Reçoit et intègre des liens gène → trait |
-| `/rdf`              | Exporte le graphe RDF au format Turtle   |
-| `/validate_trait`   | Valide un terme TO depuis un label       |
-| `/ask`              | Interprète une requête langage naturel   |
+CSV/API Input ➔ RDF Graph ➔ SPARQL/NLQ Panel ➔ Visual Graph
+                        ⤵                      ⤴
+           Federation APIs (FAIDARE, Neo4j, etc.)
+
+## Interopérabilité / Interoperability
+
+PhyloGraph supports integration and future federation with:
+
+| Platform        | Description                                  |
+|----------------|----------------------------------------------|
+| **SyntenyViewer** | Gène → Synténie → Trait linking             |
+| **FAIDARE**     | Germplasm & phenotype FAIR APIs               |
+| **AgroPortal**  | TO Ontology validation / metadata              |
+| **Neo4j (planned)** | Native RDF-to-GraphDB export               |
+| **ELIXIR-FR**   | RDF alignment with national bioportal         |
 
 ---
 
-##  Exemple d’appel API / API Sample
+## Technologies Used
 
-POST http://localhost:8000/graph
-Content-Type: application/json
+| Layer           | Technologies |
+|----------------|--------------|
+| **Frontend**   | React, Vite, TailwindCSS, Framer Motion, Lucide Icons |
+| **Backend**    | FastAPI (Python), RDFLib, SPARQL endpoint, CORS |
+| **Semantic Web** | RDF/Turtle, TO Ontology, SPARQLWrapper, JSON-LD |
+| **Graph DB / Viz** | Cytoscape.js, Neo4j (planned), CSV-to-RDF, Turtle import |
+| **AI / NLP**    | Mistral LLM integration (via `/ask`), natural language query |
+| **Extras**     | RDF export/download, RDF injection from API, CSV parsers |
 
+---
+
+## Features
+
+-  Visualise gène ➔ trait ➔ ontology links
+-  Ask questions with LLM (via `/ask`)
+-  SPARQL panel with query builder
+-  Export RDF (Turtle)
+-  Convert CSV ➔ RDF, SQL, Neo4j
+-  RDF ➔ SPARQL, JSON-LD ➔ RDF, TTL ➔ Graph
+-  Full right-panel UX for converters & results
+-  FAIDARE + SyntenyViewer federation-ready
+
+---
+
+## API Endpoints
+
+| Endpoint            | Description                             |
+|---------------------|-----------------------------------------|
+| `POST /graph`       | Inject gene ➔ trait data as RDF triples |
+| `GET /rdf`          | Export current RDF graph as Turtle      |
+| `POST /sparql`      | Execute a SPARQL query                  |
+| `POST /ask`         | Ask an LLM to generate SPARQL from NLQ |
+| `POST /validate_trait` | Validate a TO label to get URI      |
+| `POST /csv-to-rdf` (planned) | Convert CSV to RDF on backend |
+
+---
+
+## Installation & Local Dev
+
+```bash
+# Clone the repo
+git clone https://github.com/<your-org>/PhyloGraph.git
+cd PhyloGraph
+```
+
+### Backend
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+Visit: http://localhost:8000/docs
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Visit: http://localhost:5173
+
+---
+
+## API Sample: POST /graph
+
+```json
 [
   {
     "gene_id": "AT1G01010",
@@ -63,17 +121,49 @@ Content-Type: application/json
     "species": "Arabidopsis thaliana"
   }
 ]
+```
 
 ---
 
-##  Objectifs scientifiques / Scientific Goals
+## Citation & Metadata
 
-Améliorer l'accessibilité aux données génomiques
+If you use **PhyloGraph** in your research or project, please cite:
 
-Favoriser l’interopérabilité entre plateformes INRAE
+```bibtex
+@misc{phylograph2025,
+  title={PhyloGraph: FAIR Semantic Gene-Trait Explorer for Translational Plant Genomics},
+  author={Flores, Raphaël and Gorbounov, Sergueï},
+  institution={INRAE, URGI & CNRGV},
+  year={2025},
+  url={https://github.com/your-org/PhyloGraph}
+}
+```
 
-Permettre la fédération sémantique FAIR des ressources biologiques
+---
 
-Soutenir la visualisation pour les programmes SyntenyViewer, RARe, FAIDARE, ELIXIR-FR
+## Roadmap / Perspectives
 
-## Ce projet a été conçu pour maximiser l’impact scientifique, la clarté sémantique et la valeur ajoutée pour les chercheurs travaillant sur la génomique végétale et l’agroécologie numérique.
+| Phase           | Planned Enhancements                                  |
+|----------------|--------------------------------------------------------|
+| **v0.3**        | CSV ➔ RDF backend API + SHACL validation             |
+| **v0.4**        | Neo4j export + full-text search (Elasticsearch)       |
+| **v0.5**        | Federated SPARQL (FAIDARE / SyntenyViewer)            |
+| **v0.6+**       | Named Graphs, RDF diff viewer, SPARQL autocompletion  |
+
+---
+
+## Project Context
+
+Developed at **CNRGV@Toulouse** for **URGI@Versailles**, INRAE  
+Part of the **BReIF** and **AgroDiv** projects  
+Supervised by [Raphaël FLORES](https://urgi.versailles.inrae.fr)
+
+> Built for INRAE platforms & scientists. FAIR, semantic, modular, open.
+
+---
+
+## License
+
+MIT License — 2025 INRAE  
+For public research, education, and interoperability
+
