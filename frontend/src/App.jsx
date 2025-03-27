@@ -84,8 +84,32 @@ function App() {
             <button onClick={() => setActivePanel('sparql')}>SPARQL</button>
             <button onClick={() => setActivePanel('ask')}>LLM (Mistral)</button>
             <button onClick={() => setActivePanel('nlq')}>NLQ</button>
-            <button onClick={() => setActivePanel('csv')}>CSV ➝ RDF</button>
-          </div>
+            <div className="relative group">
+  <button className="px-3 py-2 hover:bg-[#1a1a1a] rounded-md">
+    Convert ▼
+  </button>
+
+  <div className="absolute top-full left-0 pt-1 z-50">
+    <div className="bg-[#111] border border-[#333] rounded-md shadow-lg w-64
+                    flex-col hidden group-hover:flex hover:flex transition-all duration-150">
+
+      <button onClick={() => setActivePanel('csv-frontend')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ RDF</button>
+      <button onClick={() => setActivePanel('csv-backend')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ RDF (large files)</button>
+      <button onClick={() => setActivePanel('csv-sql')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ SQL</button>
+      <button onClick={() => setActivePanel('sql-rdf')} className="px-4 py-2 text-left hover:bg-[#222]">SQL ➝ RDF</button>
+      <button onClick={() => setActivePanel('csv-neo4j')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ Neo4j</button>
+      <button onClick={() => setActivePanel('ttl-graph')} className="px-4 py-2 text-left hover:bg-[#222]">Turtle ➝ Graph</button>
+      <button onClick={() => setActivePanel('rdf-api-graph')} className="px-4 py-2 text-left hover:bg-[#222]">RDF API ➝ Graph</button>
+      <button onClick={() => setActivePanel('jsonld-rdf')} className="px-4 py-2 text-left hover:bg-[#222]">JSON-LD ➝ RDF</button>
+      <button onClick={() => setActivePanel('rdf-sparql')} className="px-4 py-2 text-left hover:bg-[#222]">RDF ➝ SPARQL</button>
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
 
           <div className="info-box">
             <p>FAIR Semantic Graph Explorer for Gene-Function-Trait Links in Translational Plant Genomics</p>
@@ -123,12 +147,19 @@ function App() {
           <NLQPanel />
         </motion.div>
       )}
-      {activePanel === 'csv' && (
-  <motion.div key="csv" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
-          
+{activePanel === 'csv-frontend' && (
+  <motion.div key="csv-frontend" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
     <CSVToRDFPanel />
   </motion.div>
 )}
+
+{activePanel === 'csv-backend' && (
+  <motion.div key="csv-backend" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
+    {/* You'll create a new <CSVToRDFApiPanel /> or reuse the same panel with a prop */}
+    <CSVToRDFPanel backend={true} />
+  </motion.div>
+)}
+
     </AnimatePresence>
   </div>
 </main>

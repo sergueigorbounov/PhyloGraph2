@@ -5,6 +5,9 @@ from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from rdflib import Graph, URIRef, Literal, Namespace, RDF
 from typing import List
+from fastapi import UploadFile, File
+from fastapi.responses import Response
+import pandas as pd
 import uuid
 
 
@@ -87,3 +90,26 @@ def load_demo_graph():
         species="Arabidopsis thaliana"
     )
     receive_graph([demo])
+
+@app.post("/csv-to-rdf")
+async def csv_to_rdf(file: UploadFile = File(...)):
+    try:
+        df = pd.read_csv(file.file)
+
+        # Create new RDF graph
+        g_csv = Graph()
+        EX = Namespace("http://example.org/")
+        g_csv.bind("ex", EX)
+
+        for _, row in df.iterrows():
+            gene_uri = URIRef(f"{EX}{row['gene_id']}")
+            g_csv.add((gene_uri, RDF.type, EX.Gene))
+            g_csv.add((gene_uri, EX.label, Literal(row['gene_label'])))
+            g_csv.add((gene_uri, EX.associatedWith, URIRef(row['trait_uri'])))
+            g_csv.add((gene_uri, EX.species, Literal(row['species'])))
+
+        turtle = g_csv.serialize(format="turtle")
+        return Response(content=turtle, media_type="text/turtle")
+    
+    except Exception as e:
+        return {"error": f"CSV to RDF conversion failed: {str(e)}"}
