@@ -14,14 +14,20 @@
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-edgehandles": "^4.0.1",
     "cytoscape-fcose": "^2.2.0",
+    "cytoscape-popper": "^4.0.1",
+    "cytoscape-qtip": "^2.8.0",
+    "cytoscape-svg": "^0.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.6.0",
+    "jquery": "^3.7.1",
     "lucide-react": "^0.484.0",
     "n3": "^1.24.2",
     "papaparse": "^5.5.2",
+    "qtip2": "^3.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.5.2"
+    "react-hot-toast": "^2.5.2",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

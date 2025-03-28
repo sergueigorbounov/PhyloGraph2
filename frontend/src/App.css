@@ -267,3 +267,14 @@ html, body {
 .top-menu .group:hover .group-hover\\:block {
   display: block;
 }
+.log-panel {
+  background-color: #111;
+  border-radius: 8px;
+  border: 1px solid #333;
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
