@@ -32,10 +32,11 @@ export default function RDFDownloader() {
 
   return (
     <button
-      onClick={handleDownload}
-      className="flex items-center gap-2 px-3 py-2 bg-[#1a1a1a] hover:bg-[#222] text-sm text-white rounded-md border border-[#333]"
-    >
-      <Download size={16} /> Export RDF (Turtle)
-    </button>
+  onClick={handleDownload}
+  className="px-4 py-2 text-sm border border-[#626262] rounded bg-[#222] text-[#aeaeae] hover:bg-[#333] flex items-center gap-2"
+>
+  <Download size={25} /> Export RDF (Turtle)
+</button>
+
   );
 }

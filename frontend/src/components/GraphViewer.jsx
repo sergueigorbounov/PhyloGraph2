@@ -150,6 +150,10 @@ export default function GraphViewer({ elements }) {
         label: node.data('label'),
         type: node.data('type')
       });
+
+      if (window.treeRef?.highlightNode) {
+        window.treeRef.highlightNode(node.id());
+      }
     });
   };
 

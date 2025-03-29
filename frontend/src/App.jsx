@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Download, Search, RefreshCcw } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import GraphViewer from './components/GraphViewer';
@@ -12,21 +12,67 @@ import { Toaster, toast } from 'react-hot-toast';
 import CSVToRDFPanel from './components/CSVToRDFPanel';
 import FederatedSPARQLPanel from './components/FederatedSPARQLPanel';
 import { useLog } from './hooks/useLog';
+import PhyloTree from './components/PhyloTree';
+import OrthologSelector from './components/OrthologSelector';
+
+function getSyntenyLink(geneId) {
+  if (!geneId) return null;
+  return `https://urgi.versailles.inrae.fr/syntenyviewer?gene=${geneId}`;
+}
 
 function App() {
   const { logs, setLogs, addLog } = useLog();
   const [elements, setElements] = useState([]);
   const [activePanel, setActivePanel] = useState('graph');
+  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [groupOptions, setGroupOptions] = useState([]);
+  const treeRef = useRef();
 
   useEffect(() => {
     const stored = localStorage.getItem('activePanel');
     if (stored) setActivePanel(stored);
     loadDemoGraph();
+    fetchOrthologGroups();
   }, []);
 
   useEffect(() => {
     localStorage.setItem('activePanel', activePanel);
   }, [activePanel]);
+
+  useEffect(() => {
+    window.treeRef = treeRef.current;
+  }, []);
+
+  const handleGraphUpdate = (data) => {
+    const newElements = data.flatMap(item => ([
+      {
+        data: {
+          id: item.gene_id,
+          label: item.gene_label,
+          external_link: getSyntenyLink(item.gene_id) // ✅ ici le lien
+        }
+      },
+      {
+        data: {
+          id: item.trait_label,
+          label: item.trait_label
+        }
+      },
+      {
+        data: {
+          source: item.gene_id,
+          target: item.trait_label,
+          label: 'associatedWith'
+        }
+      }
+    ]));
+    setElements(prev => [...prev, ...newElements]);
+  };
+  
+
+  const handleClearGraph = () => {
+    setElements([]);
+  };
 
   const loadDemoGraph = () => {
     const demo = [
@@ -46,29 +92,77 @@ function App() {
       }
     ];
 
-    const demoElements = demo.flatMap(item => ([
-      { data: { id: item.gene_id, label: item.gene_label } },
-      { data: { id: item.trait_label, label: item.trait_label } },
-      { data: { source: item.gene_id, target: item.trait_label, label: 'associatedWith' } }
-    ]));
-
-    setElements(demoElements);
+    handleGraphUpdate(demo);
     toast.success('Demo graph loaded');
   };
 
-  const handleGraphUpdate = (data) => {
-    const newElements = data.flatMap(item => ([
-      { data: { id: item.gene_id, label: item.gene_label } },
-      { data: { id: item.trait_label, label: item.trait_label } },
-      { data: { source: item.gene_id, target: item.trait_label, label: 'associatedWith' } }
-    ]));
-    setElements(prev => [...prev, ...newElements]);
+  const fetchOrthologGroups = async () => {
+    const query = `PREFIX orth: <http://www.orthology.org/ontology#>
+SELECT DISTINCT ?group WHERE {
+  ?group a orth:OrthologGroup ;
+         orth:hasMember ?gene .
+} LIMIT 50
+`;
+
+    try {
+      const res = await fetch('http://localhost:8000/sparql/federated', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, endpoint: 'https://urgi.versailles.inrae.fr/sparql' })
+      });
+
+      const data = await res.json();
+      const bindings = data.results?.bindings || [];
+      const groupUris = bindings.map(b => b.group.value);
+
+      setGroupOptions(groupUris);
+
+      if (groupUris.length > 0) {
+        const firstGroup = groupUris[0];
+        setSelectedGroupId(firstGroup);
+        fetchGroupGenes(firstGroup);
+      }
+    } catch (err) {
+      console.error('Failed to fetch ortholog groups', err);
+    }
   };
 
-  const handleClearGraph = () => {
-    setElements([]);
+  const handleGroupSelect = (e) => {
+    const groupId = e.target.value;
+    setSelectedGroupId(groupId);
+    fetchGroupGenes(groupId);
   };
 
+  const fetchGroupGenes = async (groupId) => {
+    const query = `PREFIX orth: <http://www.orthology.org/ontology#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT ?gene ?label WHERE {
+        <${groupId}> orth:hasMember ?gene .
+        ?gene rdfs:label ?label .
+      }`;
+
+    try {
+      const res = await fetch('http://localhost:8000/sparql/federated', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, endpoint: 'https://urgi.versailles.inrae.fr/sparql' })
+      });
+
+      const data = await res.json();
+      const bindings = data.results?.bindings || [];
+      const nodes = bindings.map(b => ({ data: { id: b.gene.value, label: b.label.value } }));
+      setElements(nodes);
+      toast.success('Ortholog group loaded into graph');
+    } catch (err) {
+      toast.error('Failed to load ortholog group');
+    }
+  };
+
+  const panelVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  };
   const addNode = (id, label) => {
     setElements(prev => {
       if (!prev.find(e => e.data.id === id)) {
@@ -80,18 +174,16 @@ function App() {
 
   const addEdge = (source, label, target) => {
     setElements(prev => {
-      const exists = prev.find(e => e.data.source === source && e.data.target === target && e.data.label === label);
+      const exists = prev.find(e =>
+        e.data.source === source &&
+        e.data.target === target &&
+        e.data.label === label
+      );
       if (!exists) {
         return [...prev, { data: { source, target, label } }];
       }
       return prev;
     });
-  };
-
-  const panelVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
   };
 
   return (
@@ -101,31 +193,18 @@ function App() {
           <div className="title-box">
             <h1>PhyloGraph</h1>
           </div>
-
           <div className="menu-center">
+            <OrthologSelector
+              onGraphUpdate={handleGraphUpdate}
+              onSetGroupId={setSelectedGroupId}
+              selectedGroupId={selectedGroupId}
+              groupOptions={groupOptions}
+            />
             <button onClick={() => setActivePanel('sparql')}>SPARQL</button>
             <button onClick={() => setActivePanel('ask')}>LLM (Mistral)</button>
             <button onClick={() => setActivePanel('nlq')}>NLQ</button>
             <button onClick={() => setActivePanel('federated')}>Federated</button>
-
-            <div className="relative group">
-              <button className="px-3 py-2 hover:bg-[#1a1a1a] rounded-md">Convert ▼</button>
-              <div className="absolute top-full left-0 pt-1 z-50">
-                <div className="bg-[#111] border border-[#333] rounded-md shadow-lg w-64 flex-col hidden group-hover:flex hover:flex transition-all duration-150">
-                  <button onClick={() => setActivePanel('csv-frontend')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ RDF</button>
-                  <button onClick={() => setActivePanel('csv-backend')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ RDF (large files)</button>
-                  <button onClick={() => setActivePanel('csv-sql')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ SQL</button>
-                  <button onClick={() => setActivePanel('sql-rdf')} className="px-4 py-2 text-left hover:bg-[#222]">SQL ➝ RDF</button>
-                  <button onClick={() => setActivePanel('csv-neo4j')} className="px-4 py-2 text-left hover:bg-[#222]">CSV ➝ Neo4j</button>
-                  <button onClick={() => setActivePanel('ttl-graph')} className="px-4 py-2 text-left hover:bg-[#222]">Turtle ➝ Graph</button>
-                  <button onClick={() => setActivePanel('rdf-api-graph')} className="px-4 py-2 text-left hover:bg-[#222]">RDF API ➝ Graph</button>
-                  <button onClick={() => setActivePanel('jsonld-rdf')} className="px-4 py-2 text-left hover:bg-[#222]">JSON-LD ➝ RDF</button>
-                  <button onClick={() => setActivePanel('rdf-sparql')} className="px-4 py-2 text-left hover:bg-[#222]">RDF ➝ SPARQL</button>
-                </div>
-              </div>
-            </div>
           </div>
-
           <div className="info-box">
             <p>FAIR Semantic Graph Explorer for Gene-Function-Trait Links in Translational Plant Genomics</p>
             <span>PEPR Agroecology – AgroDiv & BReIF / URGI & CNRGV, INRAE</span>
@@ -135,31 +214,29 @@ function App() {
 
       <main className="main-content split-layout">
         <div className="left-panel">
-          <SearchBar
-            onGraphUpdate={handleGraphUpdate}
-            onClearGraph={handleClearGraph}
-            onLoadDemo={loadDemoGraph}
-          />
+          <SearchBar onGraphUpdate={handleGraphUpdate} onClearGraph={handleClearGraph} onLoadDemo={loadDemoGraph} />
+          <div className="tree-wrapper" style={{ maxHeight: 300, overflowY: 'auto' }}>
+            <PhyloTree
+              ref={treeRef}
+              groupId={selectedGroupId}
+              onNodeClick={(id) => {
+                const cy = window.cy;
+                if (cy && cy.$(`#${id}`).length) {
+                  cy.$(`#${id}`).select();
+                  cy.center(cy.$(`#${id}`));
+                  cy.animate({ fit: { eles: cy.$(`#${id}`), padding: 80 }, duration: 500 });
+                }
+              }}
+            />
+          </div>
           <GraphViewer elements={elements} />
         </div>
-
         <div className="right-panel bg-[#0c0c0c] h-full overflow-y-auto p-4 space-y-6">
           <AnimatePresence mode="wait">
             {activePanel === 'sparql' && <motion.div key="sparql" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}><SPARQLPanel /></motion.div>}
             {activePanel === 'ask' && <motion.div key="ask" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}><AskPanel /></motion.div>}
             {activePanel === 'nlq' && <motion.div key="nlq" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}><NLQPanel /></motion.div>}
             {activePanel === 'federated' && <motion.div key="federated" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}><FederatedSPARQLPanel addLog={addLog} addNode={addNode} addEdge={addEdge} /></motion.div>}
-            {activePanel === 'csv-frontend' && <motion.div key="csv-frontend" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}><CSVToRDFPanel /></motion.div>}
-            {activePanel === 'csv-backend' && <motion.div key="csv-backend" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}><CSVToRDFPanel backend={true} /></motion.div>}
-            <motion.div key="logs" initial="hidden" animate="visible" exit="exit" variants={panelVariants} transition={{ duration: 0.4 }}>
-              <div className="log-panel bg-[#111] border border-[#333] rounded p-3 text-xs text-gray-300 max-h-48 overflow-y-auto">
-                <div className="flex justify-between items-center mb-1">
-                  <h3 className="text-green-400 font-bold">🧾 Logs</h3>
-                  <button onClick={() => setLogs([])} className="text-red-400 hover:text-red-300 text-xs">🗑️ Clear Logs</button>
-                </div>
-                <pre>{logs.join('\n')}</pre>
-              </div>
-            </motion.div>
           </AnimatePresence>
         </div>
       </main>

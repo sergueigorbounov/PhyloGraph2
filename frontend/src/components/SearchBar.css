@@ -27,9 +27,11 @@
   display: flex;
   gap: 0.5rem;
   flex-shrink: 0;
+  align-items: center;
 }
 
-.searchbar-buttons button {
+.searchbar-buttons button,
+.searchbar-buttons .rdf-download button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #222;
@@ -41,10 +43,12 @@
   transition: background-color 0.2s ease;
 }
 
-.searchbar-buttons button:hover {
+.searchbar-buttons button:hover,
+.searchbar-buttons .rdf-download button:hover {
   background-color: rgba(195, 195, 195, 0.373);
 }
 
 .searchbar-buttons .rdf-download {
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
