@@ -11,6 +11,18 @@ html, body {
   scroll-behavior: smooth;
 }
 
+/* === CUSTOM SCROLLBAR === */
+.right-panel::-webkit-scrollbar {
+  width: 8px;
+}
+.right-panel::-webkit-scrollbar-track {
+  background: #111;
+}
+.right-panel::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+}
+
 /* === APP WRAPPER === */
 .app {
   width: 100%;
@@ -41,7 +53,7 @@ html, body {
   height: 100%;
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem;
 }
@@ -68,7 +80,6 @@ html, body {
   text-shadow: 0 0 4px #66ffcc;
 }
 
-/* (Optional) if you still use <a> somewhere */
 .top-menu a {
   color: #66ffcc;
   text-decoration: none;
@@ -156,7 +167,7 @@ html, body {
 .graph-container {
   width: 100vw;
   max-width: 100%;
-  height: 77vh;
+  height: calc(100vh - 64px - 40px);
   margin: 1.2rem 0;
   position: relative;
   border-radius: 12px;
@@ -164,31 +175,17 @@ html, body {
   justify-content: center;
   align-items: stretch;
   border: 1px solid #30363d;
-  background-color: #0d1117; 
+  background-color: #000;
   padding: 2rem;
   box-shadow: 0 0 0 1px #30363d, 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* === MENU LAYOUT === */
 .menu-center {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1.5rem;
-  margin-left: -31rem;
-}
-
-.top-menu-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.menu-center {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: left;
+  margin-left: 12vw;
   gap: 1.5rem;
 }
 
@@ -204,42 +201,12 @@ html, body {
 
 /* === MAIN CONTENT OFFSET === */
 .main-content {
-  padding-top: 80px;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .menu-center {
-    margin-left: 4rem;
-    gap: 1rem;
-  }
-}
-.main-content {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100vh;
-  padding-top: 64px; /* match your nav height */
-}
-
-.section.graph-zone {
-  flex: 1 1 50%;
-  overflow: hidden;
-}
-
-.section.panel-zone {
-  flex: 1 1 50%;
-  overflow-y: auto;
-  padding: 0rem 0rem;
-  background: rgba(255,255,255,0.01);
-}
-
-.main-content.split-layout {
-  display: flex;
   flex-direction: row;
-  height: calc(100vh - 64px); /* below top nav */
   overflow: hidden;
+  height: calc(100vh - 64px);
+  padding-top: 64px;
 }
 
 .left-panel {
@@ -255,18 +222,21 @@ html, body {
   padding: 1rem 1.5rem 1rem 0.5rem;
   overflow-y: auto;
   border-left: 1px solid #222;
-  background-color: #0b0b0b;
+  background-color: #000;
   box-shadow: inset 1px 0 0 rgba(255,255,255,0.05);
-}
-
-.right-panel {
   position: sticky;
   top: 64px;
   height: calc(100vh - 64px);
 }
+
+.sparql-panel {
+  min-height: 25vh;
+}
+
 .top-menu .group:hover .group-hover\\:block {
   display: block;
 }
+
 .log-panel {
   background-color: #111;
   border-radius: 8px;
@@ -277,4 +247,11 @@ html, body {
   font-size: 0.75rem;
   white-space: pre-wrap;
   line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .menu-center {
+    margin-left: 4rem;
+    gap: 1rem;
+  }
 }

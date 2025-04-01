@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@tippyjs/react": "^4.2.6",
     "cytoscape": "^3.31.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-edgehandles": "^4.0.1",

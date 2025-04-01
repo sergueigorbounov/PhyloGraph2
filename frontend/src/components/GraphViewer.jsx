@@ -1,4 +1,3 @@
-// GraphViewer.jsx
 import CytoscapeComponent from 'react-cytoscapejs';
 import { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
@@ -32,6 +31,11 @@ export default function GraphViewer({ elements }) {
   const cyRef = useRef(null);
 
   useEffect(() => {
+    elements.forEach(el => {
+      if (el.data?.id) {
+        el.data.type = getNodeType(el.data.id);
+      }
+    });
     setLayoutKey(prev => prev + 1);
   }, [elements, layoutType]);
 
@@ -177,18 +181,33 @@ export default function GraphViewer({ elements }) {
     a.click();
   };
 
+  const exportFullRDF = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/rdf');
+      const turtle = await res.text();
+      const blob = new Blob([turtle], { type: 'text/turtle' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'full_graph.ttl';
+      a.click();
+      toast.success('Exported RDF from backend');
+    } catch (err) {
+      toast.error('RDF export failed');
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="graph-container relative w-full h-full">
-      <AnimatePresence>
-        {modalNode && <NodeModal node={modalNode} onClose={() => setModalNode(null)} />}
-      </AnimatePresence>
+    <div className="graph-wrapper w-full h-[calc(100vh-64px-80px)] bg-black border border-zinc-800 rounded-xl overflow-hidden relative">
+  {/* Buttons */}
       <div className="absolute top-2 right-2 z-10 flex gap-2">
-        <button onClick={exportPNG} className="text-xs bg-gray-800 px-2 py-1 rounded text-white">Export PNG</button>
-        <button onClick={exportSVG} className="text-xs bg-gray-800 px-2 py-1 rounded text-white">Export SVG</button>
+        <button onClick={exportPNG} className="text-xs px-2 py-1 bg-zinc-800 border border-zinc-600 rounded text-white hover:bg-zinc-700">PNG</button>
+        <button onClick={exportSVG} className="text-xs px-2 py-1 bg-zinc-800 border border-zinc-600 rounded text-white hover:bg-zinc-700">SVG</button>
+        <button onClick={exportFullRDF} className="text-xs px-2 py-1 bg-zinc-800 border border-zinc-600 rounded text-white hover:bg-zinc-700">RDF</button>
         <select
           onChange={(e) => setLayoutType(e.target.value)}
           value={layoutType}
-          className="text-xs bg-gray-800 text-white rounded px-1"
+          className="text-xs bg-zinc-800 border border-zinc-600 text-white rounded px-2 py-1"
         >
           <option value="fcose">FCoSE</option>
           <option value="concentric">Concentric</option>
@@ -196,6 +215,13 @@ export default function GraphViewer({ elements }) {
           <option value="breadthfirst">Tree</option>
         </select>
       </div>
+
+      {/* Modal for node info */}
+      <AnimatePresence>
+        {modalNode && <NodeModal node={modalNode} onClose={() => setModalNode(null)} />}
+      </AnimatePresence>
+
+      {/* Cytoscape Canvas */}
       <motion.div
         key={layoutKey}
         initial={{ opacity: 0 }}

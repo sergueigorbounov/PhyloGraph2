@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Copy, Download, ExternalLink, FileText, BookOpen, Sparkles } from 'lucide-react';
+import {
+  Copy, Download, ExternalLink, FileText, BookOpen, Sparkles, X
+} from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { useLog } from '../hooks/useLog';
 
@@ -66,17 +68,21 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
   const isTO = node.id?.includes('/TO_');
   const isGO = node.id?.includes('/GO_');
   const isGene = node.id?.includes('AT');
-
   const ensemblLink = isGene ? `https://plants.ensembl.org/Multi/Search/Results?q=${node.label}` : null;
   const pubmedLink = `https://pubmed.ncbi.nlm.nih.gov/?term=${node.label}`;
   const goLink = isGO ? `https://www.ebi.ac.uk/QuickGO/term/${node.id.split('/').pop()}` : null;
   const toLink = isTO ? `http://browser.agroportal.lirmm.fr/ontologies/TO?p=classes&conceptid=${node.id}` : null;
   const syntLink = isGene ? `https://urgi.versailles.inrae.fr/syntenyviewer?gene=${node.label}` : null;
+  const faidareLink = node.external_link?.includes('faidare') ? node.external_link : null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full space-y-4 relative text-sm text-gray-800">
-        <h2 className="text-xl font-bold flex items-center gap-2">
+      <div className="bg-zinc-900 rounded-xl shadow-xl p-6 max-w-2xl w-full space-y-4 relative text-sm text-zinc-100 border border-zinc-700">
+        <button onClick={onClose} className="absolute top-2 right-3 text-zinc-400 hover:text-white">
+          <X className="w-5 h-5" />
+        </button>
+
+        <h2 className="text-xl font-semibold flex items-center gap-2 text-zinc-100">
           <BookOpen className="w-5 h-5" />
           Node Info
         </h2>
@@ -84,58 +90,48 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
         <div className="space-y-1">
           <p><strong>Label:</strong> {node.label}</p>
           <p><strong>Type:</strong> {node.type || 'N/A'}</p>
+          {node.type && (
+            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs border border-zinc-600 bg-zinc-800 text-zinc-300">
+              🧬 {node.type}
+            </span>
+          )}
           <p>
             <strong>URI:</strong>{' '}
-            <code className="break-all bg-gray-100 px-1 py-0.5 rounded">{node.id}</code>
-            <button onClick={handleCopy} className="ml-2 inline-flex items-center text-blue-600 hover:text-blue-800">
+            <code className="break-all bg-zinc-800 text-zinc-100 px-1 py-0.5 rounded">{node.id}</code>
+            <button onClick={handleCopy} className="ml-2 inline-flex items-center text-blue-400 hover:text-blue-200">
               <Copy className="w-4 h-4" />
             </button>
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {ensemblLink && (
-            <a href={ensemblLink} target="_blank" rel="noreferrer" className="btn-link">
-              <ExternalLink className="w-4 h-4" /> Ensembl
-            </a>
-          )}
-          {pubmedLink && (
-            <a href={pubmedLink} target="_blank" rel="noreferrer" className="btn-link">
-              <ExternalLink className="w-4 h-4" /> PubMed
-            </a>
-          )}
-          {goLink && (
-            <a href={goLink} target="_blank" rel="noreferrer" className="btn-link">
-              <ExternalLink className="w-4 h-4" /> GO Term
-            </a>
-          )}
-          {toLink && (
-            <a href={toLink} target="_blank" rel="noreferrer" className="btn-link">
-              <ExternalLink className="w-4 h-4" /> TO Term
-            </a>
-          )}
-          {syntLink && (
-            <a href={syntLink} target="_blank" rel="noreferrer" className="btn-link">
-              <ExternalLink className="w-4 h-4" /> SyntenyViewer
-            </a>
-          )}
+        {/* External Links */}
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {ensemblLink && <ExternalLinkButton href={ensemblLink} label="Ensembl" />}
+          {pubmedLink && <ExternalLinkButton href={pubmedLink} label="PubMed" />}
+          {goLink && <ExternalLinkButton href={goLink} label="GO Term" />}
+          {toLink && <ExternalLinkButton href={toLink} label="TO Term" />}
+          {syntLink && <ExternalLinkButton href={syntLink} label="SyntenyViewer" />}
+          {faidareLink && <ExternalLinkButton href={faidareLink} label="FAIDARE" />}
         </div>
 
+        {/* Metadata display */}
+        <div className="mt-2 text-sm text-zinc-300 space-y-1">
+          {node.commonCropName && <p><strong>Crop:</strong> {node.commonCropName}</p>}
+          {node.accessionNumber && <p><strong>Accession:</strong> {node.accessionNumber}</p>}
+          {node.synonym && <p><strong>Synonym:</strong> {node.synonym}</p>}
+        </div>
+
+        {/* Actions */}
         <div className="mt-4 space-x-2">
-          <button onClick={handleDownloadBib} className="btn-blue">
-            <Download className="w-4 h-4" /> Download Citation (.bib)
-          </button>
-          <button onClick={() => navigator.clipboard.writeText(getCitation())} className="btn-blue">
-            <FileText className="w-4 h-4" /> Copy Citation (BibTeX)
-          </button>
-          <button onClick={() => navigator.clipboard.writeText(JSON.stringify(node, null, 2))} className="btn-blue">
-            <Sparkles className="w-4 h-4" /> Copy JSON
-          </button>
+          <ActionButton onClick={handleDownloadBib} icon={<Download className="w-4 h-4" />} label="Download Citation (.bib)" />
+          <ActionButton onClick={() => navigator.clipboard.writeText(getCitation())} icon={<FileText className="w-4 h-4" />} label="Copy Citation (BibTeX)" />
+          <ActionButton onClick={() => navigator.clipboard.writeText(JSON.stringify(node, null, 2))} icon={<Sparkles className="w-4 h-4" />} label="Copy JSON" />
         </div>
 
+        {/* SPARQL Panel */}
         <div>
           <textarea
-            className="w-full h-28 p-2 border border-gray-300 rounded mt-2"
+            className="w-full h-28 p-2 border border-zinc-700 bg-zinc-800 text-zinc-100 rounded mt-2"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -145,15 +141,15 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
         {bindings.length > 0 && (
           <div className="mt-4">
             <button onClick={handleInjectBindings} className="btn-green mb-2">+ Add All to Graph</button>
-            <table className="text-xs w-full border border-collapse">
+            <table className="text-xs w-full border border-zinc-600 border-collapse text-zinc-200">
               <thead>
-                <tr>{Object.keys(bindings[0]).map(k => <th key={k} className="border px-1">{k}</th>)}</tr>
+                <tr>{Object.keys(bindings[0]).map(k => <th key={k} className="border px-1 border-zinc-700">{k}</th>)}</tr>
               </thead>
               <tbody>
                 {bindings.map((b, i) => (
-                  <tr key={i} className="odd:bg-gray-100">
+                  <tr key={i} className="odd:bg-zinc-800">
                     {Object.keys(b).map(k => (
-                      <td key={k} className="border px-1">{b[k]?.value}</td>
+                      <td key={k} className="border px-1 border-zinc-700">{b[k]?.value}</td>
                     ))}
                   </tr>
                 ))}
@@ -161,9 +157,31 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
             </table>
           </div>
         )}
-
-        <button onClick={onClose} className="absolute top-2 right-3 text-blue-600 hover:text-blue-800 text-sm">Close</button>
       </div>
     </div>
+  );
+}
+
+function ExternalLinkButton({ href, label }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-1 px-2 py-1 border border-zinc-600 rounded hover:bg-zinc-800 text-blue-400"
+    >
+      <ExternalLink className="w-4 h-4" /> {label}
+    </a>
+  );
+}
+
+function ActionButton({ onClick, icon, label }) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-1 px-3 py-1 bg-zinc-800 text-zinc-100 rounded border border-zinc-600 hover:bg-zinc-700"
+    >
+      {icon} {label}
+    </button>
   );
 }

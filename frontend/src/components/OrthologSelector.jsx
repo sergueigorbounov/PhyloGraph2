@@ -5,18 +5,21 @@ export default function OrthologSelector({
   onGraphUpdate,
   onSetGroupId,
   selectedGroupId,
-  groupOptions
+  groupOptions = []
 }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!selectedGroupId && groupOptions.length > 0) {
+    const stored = localStorage.getItem('orthologGroup');
+    if (stored && Array.isArray(groupOptions) && groupOptions.includes(stored)) {
+      onSetGroupId?.(stored);
+      fetchOrthologs(stored);
+    } else if (!selectedGroupId && groupOptions.length > 0) {
       const first = groupOptions[0];
-      onSetGroupId?.(first);            // ✅ Update state
-      fetchOrthologs(first);           // ✅ Fetch genes
+      onSetGroupId?.(first);
+      fetchOrthologs(first);
     }
   }, [groupOptions]);
-  
 
   const fetchOrthologs = async (groupId) => {
     setLoading(true);
@@ -52,8 +55,12 @@ export default function OrthologSelector({
 
       onGraphUpdate?.(elements);
       onSetGroupId?.(groupId);
+      localStorage.setItem('orthologGroup', groupId);
 
       toast.success('Ortholog group loaded ✅', { id: 'ortholog' });
+
+      // Auto-scroll tree
+      document.querySelector('.tree-wrapper')?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       toast.error('Failed to fetch orthologs ❌', { id: 'ortholog' });
       console.error(err);
@@ -63,26 +70,32 @@ export default function OrthologSelector({
   };
 
   return (
-    <div className="mb-2">
-      <label className="text-sm text-gray-300 mb-1 block">Ortholog Group</label>
-      <select
-  disabled={loading}
-  value={selectedGroupId} // ✅ Bind here
-  onChange={(e) => {
-    const val = e.target.value;
-    onSetGroupId(val);     // ✅ sync state
-    fetchOrthologs(val);   // ✅ trigger fetch
-  }}
-  className="bg-[#111] border border-[#333] text-white text-sm px-2 py-1 rounded w-full"
->
+    <div className="w-64">
+      <div className="relative">
+        <select
+          disabled={loading || groupOptions.length === 0}
+          value={selectedGroupId}
+          onChange={(e) => {
+            const val = e.target.value;
+            onSetGroupId(val);
+            fetchOrthologs(val);
+          }}
+          className="w-full px-3 py-2 text-sm bg-zinc-900 text-white border border-zinc-700 rounded hover:border-zinc-600 focus:outline-none"
+        >
+          <option value="" disabled>Select Ortholog Group</option>
+          {groupOptions.map(uri => (
+            <option key={uri} value={uri}>
+              {uri.split('/').pop()}
+            </option>
+          ))}
+        </select>
 
-        <option value="">Select Ortholog Group</option>
-        {groupOptions.map(uri => (
-          <option key={uri} value={uri}>
-            {uri.split('/').pop()}
-          </option>
-        ))}
-      </select>
+        {loading && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 animate-pulse">
+            Loading...
+          </div>
+        )}
+      </div>
     </div>
   );
 }

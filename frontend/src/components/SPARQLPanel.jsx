@@ -1,134 +1,149 @@
-import { useState } from 'react';
-import { api } from '../api/api';
-import { Play, ClipboardCopy, Download } from 'lucide-react';
+// Clean SPARQLPanel with Monaco, Wikidata, Local, and SyntenyViewer support
+// Includes: endpoint logging, error fallback, SyntenyViewer presets
 
-const queryTemplates = [
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { Play, ClipboardCopy, Plus, Eye } from 'lucide-react';
+import Tippy from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css';
+import Editor from '@monaco-editor/react';
+
+const ENDPOINTS = {
+  Local: '',
+  Wikidata: 'https://query.wikidata.org/sparql',
+  SyntenyViewer: 'https://urgi.versailles.inrae.fr/sparql'
+};
+
+const QUERY_TEMPLATES = [
   {
     label: 'All triples',
-    query: `SELECT ?s ?p ?o WHERE { ?s ?p ?o }`
+    query: 'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10'
   },
   {
-    label: 'Genes and Traits',
-    query: `SELECT ?gene ?trait WHERE { ?gene :associatedWith ?trait }`
+    label: 'SyntenyViewer: All genes',
+    query: 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nSELECT ?gene WHERE { ?gene rdf:type ?type } LIMIT 10'
   },
   {
-    label: 'All Genes',
-    query: `PREFIX : <http://example.org/>\nSELECT ?g WHERE { ?g a :Gene }`
+    label: 'SyntenyViewer: Gene positions',
+    query: 'PREFIX obo: <http://purl.obolibrary.org/obo/>\nSELECT ?gene ?start ?end WHERE { ?gene obo:SO_start ?start ; obo:SO_end ?end } LIMIT 10'
   }
 ];
 
-export default function SPARQLPanel() {
-  const [query, setQuery] = useState(queryTemplates[0].query);
+const shortLabel = (val) => !val ? '' : (!val.startsWith('http') ? val : val.split('/').pop().split('#').pop());
+const getNodeColor = (id, type = '') => type === 'literal' ? '#facc15' : id.includes('/GO_') ? '#3b82f6' : id.includes('/TO_') ? '#22c55e' : '#e2e8f0';
+
+export default function SPARQLPanel({ addLog }) {
+  const [query, setQuery] = useState(localStorage.getItem('sparqlQuery') || QUERY_TEMPLATES[0].query);
   const [rows, setRows] = useState([]);
+  const [endpointKey, setEndpointKey] = useState('Local');
   const [error, setError] = useState('');
+  const [showJson, setShowJson] = useState(false);
+
+  const endpoint = ENDPOINTS[endpointKey];
+
+  useEffect(() => {
+    localStorage.setItem('sparqlQuery', query);
+  }, [query]);
 
   const runQuery = async () => {
+    setError('');
+    const url = endpointKey === 'Local' ? 'http://localhost:8000/sparql' : 'http://localhost:8000/sparql/federated';
+    toast.loading(`Querying ${endpointKey}...`, { id: 'query' });
     try {
-      const res = await api.post('/sparql', { query });
-      if (res.data.error) {
-        setError(res.data.error);
-        setRows([]);
-      } else {
-        const lines = res.data.trim().split('\n');
-        const parsed = lines.map(line => line.split(' | '));
-        setRows(parsed);
-        setError('');
-      }
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, endpoint })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setRows(data.results?.bindings || []);
+      toast.success(`✅ ${data.results?.bindings?.length || 0} results`, { id: 'query' });
+      addLog?.(`🔍 ${data.results?.bindings?.length} rows from ${endpointKey}`);
     } catch (err) {
-      setError('Error: ' + err.message);
-      setRows([]);
+      toast.error(`${endpointKey} failed`, { id: 'query' });
+      setError(err.message);
+      addLog?.(`${endpointKey} error: ${err.message}`);
     }
   };
 
-  const copyResults = () => {
-    const csv = rows.map(r => r.join('\t')).join('\n');
-    navigator.clipboard.writeText(csv);
+  const addTripleToGraph = (row) => {
+    const s = row.s?.value;
+    const p = row.p?.value;
+    const o = row.o?.value;
+    const oType = row.o?.type;
+    const cy = window.cy;
+    if (!cy || !s || !p || !o) return;
+    if (!cy.getElementById(s).length) cy.add({ group: 'nodes', data: { id: s, label: shortLabel(s), color: getNodeColor(s) } });
+    if (!cy.getElementById(o).length) cy.add({ group: 'nodes', data: { id: o, label: shortLabel(o), color: getNodeColor(o, oType), ...(oType === 'literal' && { type: 'literal' }) } });
+    const eid = `${s}-${p}-${o}`;
+    if (!cy.getElementById(eid).length) cy.add({ group: 'edges', data: { id: eid, source: s, target: o, label: shortLabel(p) } });
   };
 
-  const downloadCSV = () => {
-    const csv = rows.map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'sparql-results.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+  const addAllToGraph = () => {
+    const cy = window.cy;
+    rows.forEach(addTripleToGraph);
+    setTimeout(() => {
+      cy?.layout({ name: 'fcose', animate: true }).run();
+      cy?.fit();
+    }, 300);
+    toast.success('📈 Added all to graph');
   };
 
   return (
-    <div className="flex flex-col gap-4 p-6 rounded-xl border border-neutral-700 bg-[#121212] text-white shadow-inner h-full overflow-y-auto">
-      <h2 className="text-lg font-semibold">SPARQL Query Panel</h2>
-
-      <select
-        className="bg-neutral-900 border border-neutral-700 px-3 py-2 rounded-md text-sm"
-        onChange={(e) => setQuery(e.target.value)}
-        value={query}
-      >
-        {queryTemplates.map((q, i) => (
-          <option key={i} value={q.query}>
-            {q.label}
-          </option>
-        ))}
-      </select>
-
-      <textarea
-        rows={6}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full bg-neutral-900 border border-neutral-700 rounded-md p-3 text-sm font-mono text-white"
-      />
-
-      <div className="flex gap-2">
-        <button
-          onClick={runQuery}
-          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border border-neutral-600 bg-neutral-800 hover:bg-neutral-700"
-        >
-          <Play size={16} /> Run SPARQL
-        </button>
-        <button
-          onClick={copyResults}
-          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border border-neutral-600 bg-neutral-800 hover:bg-neutral-700"
-        >
-          <ClipboardCopy size={16} /> Copy
-        </button>
-        <button
-          onClick={downloadCSV}
-          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border border-neutral-600 bg-neutral-800 hover:bg-neutral-700"
-        >
-          <Download size={16} /> CSV
-        </button>
+    <div className="flex flex-col gap-4 p-6 text-white max-h-[80vh] overflow-y-auto">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold flex items-center gap-2">SPARQL Panel</h2>
+        <Tippy content="Toggle JSON view"><button onClick={() => setShowJson(v => !v)}><Eye /></button></Tippy>
       </div>
 
-      {error && (
-        <pre className="bg-red-900 text-red-300 p-3 rounded-md text-sm">{error}</pre>
-      )}
+      <label className="text-sm">Endpoint</label>
+      <select
+        className="bg-zinc-900 border border-zinc-700 px-3 py-2 rounded"
+        value={endpointKey}
+        onChange={e => {
+          const newKey = e.target.value;
+          setEndpointKey(newKey);
+          toast.success(`Switched to ${newKey}`);
+          addLog?.(`Switched to ${newKey}`);
+        }}>
+        {Object.keys(ENDPOINTS).map(key => <option key={key}>{key}</option>)}
+      </select>
 
-      {rows.length > 1 && (
-        <div className="overflow-auto border border-neutral-700 rounded-md">
-          <table className="w-full text-sm border-collapse text-left">
-            <thead>
-              <tr className="bg-neutral-800 text-neutral-300">
-                {rows[0].map((col, i) => (
-                  <th key={i} className="px-3 py-2 border-b border-neutral-700">
-                    {col || `?col${i + 1}`}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.slice(1).map((row, ri) => (
-                <tr key={ri} className="hover:bg-neutral-800">
-                  {row.map((val, ci) => (
-                    <td key={ci} className="px-3 py-2 border-b border-neutral-800 text-neutral-200">
-                      {val}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+      <label className="text-sm">Templates</label>
+      <select onChange={(e) => setQuery(e.target.value)} className="bg-zinc-900 border border-zinc-700 px-3 py-2 rounded">
+        {QUERY_TEMPLATES.map((t, i) => <option key={i} value={t.query}>{t.label}</option>)}
+      </select>
+
+      <Editor
+        height="200px"
+        theme="vs-dark"
+        defaultLanguage="sparql"
+        value={query}
+        onChange={val => setQuery(val)}
+        options={{ fontSize: 13, minimap: { enabled: false }, wordWrap: 'on', lineNumbers: 'on' }}
+      />
+
+      <div className="flex flex-wrap gap-2">
+        <button onClick={runQuery} className="btn-dark"><Play /> Run</button>
+        <button onClick={() => navigator.clipboard.writeText(query)} className="btn-dark"><ClipboardCopy /> Copy</button>
+        {rows.length > 0 && <button onClick={addAllToGraph} className="btn-dark"><Plus /> Add All to Graph</button>}
+      </div>
+
+      <div className="text-xs text-zinc-400 mt-2"><strong>Legend:</strong> 🟢 TO Term, 🔵 GO Term, 🟡 Literal, ⚪ Other</div>
+      {error && <pre className="text-red-400 mt-2 text-sm">{error}</pre>}
+
+      {rows.length > 0 && (
+        showJson ? (
+          <pre className="bg-zinc-900 p-3 rounded text-sm text-green-300 overflow-auto max-h-[300px]">{JSON.stringify(rows, null, 2)}</pre>
+        ) : (
+          <table className="text-sm border mt-4">
+            <thead><tr>{Object.keys(rows[0]).map((k, i) => <th key={i} className="px-2 text-zinc-400">{k}</th>)}<th>Actions</th></tr></thead>
+            <tbody>{rows.map((r, i) => (
+              <tr key={i}>{Object.entries(r).map(([k, v], j) => <td key={j} className="px-2">{v.value}</td>)}<td><button onClick={() => addTripleToGraph(r)} className="text-blue-400 hover:underline">Add</button></td></tr>
+            ))}</tbody>
           </table>
-        </div>
+        )
       )}
     </div>
   );
