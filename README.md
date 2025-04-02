@@ -1,4 +1,6 @@
-# ![PhyloGraph.png](frontend/public/PhyloGraph.png)PhyloGraph – Visualisation interactive de gènes, traits et graphes RDF  
+# ![PhyloGraph.png](frontend/public/PhyloGraph.png)
+
+# PhyloGraph – Visualisation interactive de gènes, traits et graphes RDF
 ### Graph-based semantic viewer for gene-to-trait relationships
 
 ---
@@ -25,9 +27,13 @@
 
 ## Architecture
 
+```
 CSV/API Input ➔ RDF Graph ➔ SPARQL/NLQ Panel ➔ Visual Graph
-                        ⤵                      ⤴
-           Federation APIs (FAIDARE, Neo4j, etc.)
+                      ➨                        ⟦
+         Federation APIs (FAIDARE, Neo4j, etc.)
+```
+
+---
 
 ## Interopérabilité / Interoperability
 
@@ -35,7 +41,7 @@ PhyloGraph supports integration and future federation with:
 
 | Platform        | Description                                  |
 |----------------|----------------------------------------------|
-| **SyntenyViewer** | Gène → Synténie → Trait linking             |
+| **SyntenyViewer** | Gène ➔ Synténie ➔ Trait linking             |
 | **FAIDARE**     | Germplasm & phenotype FAIR APIs               |
 | **AgroPortal**  | TO Ontology validation / metadata              |
 | **Neo4j (planned)** | Native RDF-to-GraphDB export               |
@@ -58,50 +64,51 @@ PhyloGraph supports integration and future federation with:
 
 ## Features
 
--  Visualise gène ➔ trait ➔ ontology links
--  Ask questions with LLM (via `/ask`)
--  SPARQL panel with query builder
--  Export RDF (Turtle)
--  Convert CSV ➔ RDF, SQL, Neo4j
--  RDF ➔ SPARQL, JSON-LD ➔ RDF, TTL ➔ Graph
--  Full right-panel UX for converters & results
--  FAIDARE + SyntenyViewer federation-ready
+- Visualise gène ➔ trait ➔ ontology links
+- Ask questions with LLM (via `/ask`)
+- SPARQL panel with query builder
+- Export RDF (Turtle)
+- Convert CSV ➔ RDF, SQL, Neo4j
+- RDF ➔ SPARQL, JSON-LD ➔ RDF, TTL ➔ Graph
+- Full right-panel UX for converters & results
+- FAIDARE + SyntenyViewer federation-ready
 
 ---
 
 ## API Endpoints
 
-| Endpoint            | Description                             |
-|---------------------|-----------------------------------------|
-| `POST /graph`       | Inject gene ➔ trait data as RDF triples |
-| `GET /rdf`          | Export current RDF graph as Turtle      |
-| `POST /sparql`      | Execute a SPARQL query                  |
-| `POST /ask`         | Ask an LLM to generate SPARQL from NLQ |
-| `POST /validate_trait` | Validate a TO label to get URI      |
-| `POST /csv-to-rdf` (planned) | Convert CSV to RDF on backend |
+| Endpoint                | Description                             |
+|-------------------------|-----------------------------------------|
+| `POST /graph`           | Inject gene ➔ trait data as RDF triples |
+| `GET /rdf`              | Export current RDF graph as Turtle      |
+| `POST /sparql`          | Execute a SPARQL query                  |
+| `POST /ask`             | Ask an LLM to generate SPARQL from NLQ |
+| `POST /validate_trait`  | Validate a TO label to get URI         |
+| `POST /csv-to-rdf`      | Convert CSV to RDF on backend (planned) |
 
 ---
 
 ## Installation & Local Dev
 
+### 1. Clone the project
 ```bash
-# Clone the repo
-git clone https://github.com/<your-org>/PhyloGraph.git
+git clone https://github.com/sergueigorbounov/PhyloGraph.git
 cd PhyloGraph
 ```
 
-### Backend
-
+### 2. Setup Backend
 ```bash
 cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
+conda env create -f environment.yml
+conda activate phylograph
+uvicorn api:app --reload
 ```
 Visit: http://localhost:8000/docs
 
-### Frontend
+### 3. Setup Frontend
 ```bash
 cd frontend
+npm install axios react-cytoscapejs
 npm install
 npm run dev
 ```
@@ -135,7 +142,7 @@ If you use **PhyloGraph** in your research or project, please cite:
   author={Flores, Raphaël and Gorbounov, Sergueï},
   institution={INRAE, URGI & CNRGV},
   year={2025},
-  url={https://github.com/your-org/PhyloGraph}
+  url={https://github.com/sergueigorbounov/PhyloGraph}
 }
 ```
 
@@ -143,12 +150,12 @@ If you use **PhyloGraph** in your research or project, please cite:
 
 ## Roadmap / Perspectives
 
-| Phase           | Planned Enhancements                                  |
-|----------------|--------------------------------------------------------|
-| **v0.3**        | CSV ➔ RDF backend API + SHACL validation             |
-| **v0.4**        | Neo4j export + full-text search (Elasticsearch)       |
-| **v0.5**        | Federated SPARQL (FAIDARE / SyntenyViewer)            |
-| **v0.6+**       | Named Graphs, RDF diff viewer, SPARQL autocompletion  |
+| Phase     | Planned Enhancements                                  |
+|-----------|--------------------------------------------------------|
+| **v0.3**  | CSV ➔ RDF backend API + SHACL validation             |
+| **v0.4**  | Neo4j export + full-text search (Elasticsearch)       |
+| **v0.5**  | Federated SPARQL (FAIDARE / SyntenyViewer)            |
+| **v0.6+** | Named Graphs, RDF diff viewer, SPARQL autocompletion  |
 
 ---
 

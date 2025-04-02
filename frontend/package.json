@@ -12,6 +12,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@tippyjs/react": "^4.2.6",
+    "axios": "^1.8.4",
     "cytoscape": "^3.31.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-edgehandles": "^4.0.1",
@@ -27,6 +28,7 @@
     "papaparse": "^5.5.2",
     "qtip2": "^3.0.3",
     "react": "^19.0.0",
+    "react-cytoscapejs": "^2.0.0",
     "react-d3-tree": "^3.6.6",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",

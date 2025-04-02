@@ -7,7 +7,6 @@ dependencies:
   - uvicorn
   - rdflib
   - pandas
-  - neo4j
   - sparqlwrapper
   - jupyterlab
   - pip
