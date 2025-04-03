@@ -1,0 +1,26 @@
+{
+    "name": "DemoOrtholog1",
+    "children": [
+      {
+        "name": "Gene1",
+        "attributes": {
+          "species": "Arabidopsis thaliana",
+          "function": "Root development"
+        }
+      },
+      {
+        "name": "FallbackGene1",
+        "attributes": {
+          "species": "Zea mays",
+          "function": "Drought response"
+        }
+      },
+      {
+        "name": "FallbackGene2",
+        "attributes": {
+          "species": "Oryza sativa",
+          "function": "Grain size"
+        }
+      }
+    ]
+  }

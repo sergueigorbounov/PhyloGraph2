@@ -1,0 +1,15 @@
+name: phylograph
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - fastapi
+  - uvicorn
+  - rdflib
+  - pandas
+  - sparqlwrapper
+  - jupyterlab
+  - pip
+  - pip:
+      - openai
+      - mistralai

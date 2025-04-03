@@ -29,7 +29,7 @@
 
 ```
 CSV/API Input ➔ RDF Graph ➔ SPARQL/NLQ Panel ➔ Visual Graph
-                      ➨                        ⟦
+                      
          Federation APIs (FAIDARE, Neo4j, etc.)
 ```
 
@@ -104,6 +104,50 @@ conda activate phylograph
 uvicorn api:app --reload
 ```
 Visit: http://localhost:8000/docs
+
+You will see the Swagger UI, FastAPI backend is fully ready for all endpoints:
+
+    /graph
+
+    /rdf
+
+    /sparql
+
+    /sparql/federated
+
+    /validate_trait
+
+    /ask
+
+    /brapi/germplasm
+
+In terminal:
+
+curl -X POST http://localhost:8000/graph \
+-H "Content-Type: application/json" \
+-d '[{
+  "gene_id": "AT1G01010",
+  "gene_label": "Gene1",
+  "trait_label": "Drought tolerance",
+  "trait_uri": "http://purl.obolibrary.org/obo/TO_0006001",
+  "species": "Arabidopsis thaliana"
+}]'
+
+This returns:
+
+{"message":"Graph data received and added."}(base)
+
+or use Swagger UI for testing:
+
+    Open: http://localhost:8000/docs
+
+    Scroll to POST /graph
+
+    Click "Try it out"
+
+    Paste in the JSON body above
+
+    Hit Execute
 
 ### 3. Setup Frontend
 ```bash

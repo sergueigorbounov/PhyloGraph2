@@ -255,3 +255,8 @@ html, body {
     gap: 1rem;
   }
 }
+
+.tree-link {
+  stroke: #666;
+  stroke-width: 1.5;
+}
