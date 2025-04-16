@@ -1,0 +1,364 @@
+import React, { useState, useEffect } from 'react';
+import { Mosaic, MosaicWindow, MosaicBranch } from 'react-mosaic-component';
+import { Button, ButtonGroup, Icon } from '@blueprintjs/core';
+import 'react-mosaic-component/react-mosaic-component.css';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/icons/lib/css/blueprint-icons.css';
+import './PhyloGraphWorkspace.css';
+
+// Import components
+import PhyD3 from './PhyD3';
+import GraphViewer from './GraphViewer';
+import NodeDetailsPanel from './NodeDetailsPanel';
+import DataExplorer from './DataExplorer';
+import SettingsPanel from './SettingsPanel';
+import useWorkspaceStore from '../stores/workspaceStore';
+import { useOrthologGroupsFromGraph } from '../hooks/useOrthologGroupsFromGraph';
+
+// Component IDs
+const TREE_VIEW = 'treeView';
+const GRAPH_VIEW = 'graphView';
+const DETAILS_VIEW = 'detailsView';
+const DATA_EXPLORER = 'dataExplorer';
+const SETTINGS = 'settings';
+
+const PhyloGraphWorkspace = () => {
+  const { layout, setLayout, selectedNode, setSelectedNode, selectedLayout, setSelectedLayout } = useWorkspaceStore();
+  const { elements, groupMap, loading: graphLoading } = useOrthologGroupsFromGraph();
+  const [windowStates, setWindowStates] = useState({});
+
+  // Default layout if none exists
+  const defaultLayout = {
+    direction: 'row',
+    first: {
+      direction: 'column',
+      first: TREE_VIEW,
+      second: DETAILS_VIEW,
+      splitPercentage: 70,
+    },
+    second: GRAPH_VIEW,
+    splitPercentage: 55,
+  };
+
+  // Initialize layout from store or default
+  useEffect(() => {
+    if (!layout) {
+      setLayout(defaultLayout);
+    }
+  }, [layout, setLayout]);
+
+  // Handler for when a node is clicked in any component
+  const handleNodeClick = (nodeId) => {
+    setSelectedNode(nodeId);
+  };
+
+  // Handler for layout changes
+  const handleLayoutChange = (newLayout) => {
+    setLayout(newLayout);
+  };
+
+  // Toggle window collapse/expand
+  const toggleWindowCollapse = (viewId) => {
+    setWindowStates((prevState) => ({
+      ...prevState,
+      [viewId]: {
+        ...prevState[viewId],
+        collapsed: !prevState[viewId]?.collapsed,
+      },
+    }));
+  };
+
+  // Render the toolbar for each window
+  const renderToolbar = (viewId, title) => {
+    return (
+      <div className="mosaic-window-toolbar">
+        <div className="mosaic-window-title">{title}</div>
+        <div className="mosaic-window-controls">
+          {viewId === TREE_VIEW && (
+            <ButtonGroup minimal={true} small={true}>
+              <Button 
+                icon="layout-auto" 
+                active={selectedLayout === 'radial'} 
+                onClick={() => setSelectedLayout('radial')}
+                title="Radial Layout"
+              />
+              <Button 
+                icon="layout-horizontal" 
+                active={selectedLayout === 'horizontal'} 
+                onClick={() => setSelectedLayout('horizontal')}
+                title="Horizontal Layout"
+              />
+              <Button 
+                icon="layout-sorted-clusters" 
+                active={selectedLayout === 'vertical'} 
+                onClick={() => setSelectedLayout('vertical')}
+                title="Vertical Layout"
+              />
+            </ButtonGroup>
+          )}
+          <Button
+            icon={windowStates[viewId]?.collapsed ? "maximize" : "minimize"}
+            minimal={true}
+            onClick={() => toggleWindowCollapse(viewId)}
+            title={windowStates[viewId]?.collapsed ? "Expand" : "Collapse"}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // Render the appropriate component for each tile
+  const renderTile = (id, path) => {
+    if (windowStates[id]?.collapsed) {
+      return (
+        <MosaicWindow
+          path={path}
+          title={getTitleForId(id)}
+          toolbarControls={[]}
+          renderToolbar={() => renderToolbar(id, getTitleForId(id))}
+          className="collapsed-window"
+        >
+          <div className="collapsed-content">
+            <h3>{getTitleForId(id)}</h3>
+            <Button
+              icon="maximize"
+              onClick={() => toggleWindowCollapse(id)}
+              text="Expand"
+            />
+          </div>
+        </MosaicWindow>
+      );
+    }
+
+    switch (id) {
+      case TREE_VIEW:
+        return (
+          <MosaicWindow
+            path={path}
+            title="Phylogenetic Tree"
+            toolbarControls={[]}
+            renderToolbar={() => renderToolbar(id, "Phylogenetic Tree")}
+          >
+            <PhyD3 
+              onNodeClick={handleNodeClick} 
+              layoutType={selectedLayout} 
+            />
+          </MosaicWindow>
+        );
+      case GRAPH_VIEW:
+        return (
+          <MosaicWindow
+            path={path}
+            title="Network Graph"
+            toolbarControls={[]}
+            renderToolbar={() => renderToolbar(id, "Network Graph")}
+          >
+            <GraphViewer 
+              elements={elements || []} 
+              onNodeClick={handleNodeClick} 
+            />
+          </MosaicWindow>
+        );
+      case DETAILS_VIEW:
+        return (
+          <MosaicWindow
+            path={path}
+            title="Node Details"
+            toolbarControls={[]}
+            renderToolbar={() => renderToolbar(id, "Node Details")}
+          >
+            <NodeDetailsPanel nodeId={selectedNode} />
+          </MosaicWindow>
+        );
+      case DATA_EXPLORER:
+        return (
+          <MosaicWindow
+            path={path}
+            title="Data Explorer"
+            toolbarControls={[]}
+            renderToolbar={() => renderToolbar(id, "Data Explorer")}
+          >
+            <DataExplorer groupMap={groupMap} />
+          </MosaicWindow>
+        );
+      case SETTINGS:
+        return (
+          <MosaicWindow
+            path={path}
+            title="Settings"
+            toolbarControls={[]}
+            renderToolbar={() => renderToolbar(id, "Settings")}
+          >
+            <SettingsPanel />
+          </MosaicWindow>
+        );
+      default:
+        return (
+          <MosaicWindow
+            path={path}
+            title="Unknown"
+            toolbarControls={[]}
+          >
+            <div>Unknown view: {id}</div>
+          </MosaicWindow>
+        );
+    }
+  };
+
+  // Helper to get the title for each view ID
+  const getTitleForId = (id) => {
+    const titles = {
+      [TREE_VIEW]: 'Phylogenetic Tree',
+      [GRAPH_VIEW]: 'Network Graph',
+      [DETAILS_VIEW]: 'Node Details',
+      [DATA_EXPLORER]: 'Data Explorer',
+      [SETTINGS]: 'Settings',
+    };
+    return titles[id] || 'Unknown';
+  };
+
+  // Predefined layout presets
+  const layoutPresets = {
+    default: defaultLayout,
+    treeOnly: TREE_VIEW,
+    graphOnly: GRAPH_VIEW,
+    sideBySide: {
+      direction: 'row',
+      first: TREE_VIEW,
+      second: GRAPH_VIEW,
+      splitPercentage: 50,
+    },
+    detailView: {
+      direction: 'row',
+      first: {
+        direction: 'column',
+        first: TREE_VIEW,
+        second: GRAPH_VIEW,
+        splitPercentage: 50,
+      },
+      second: DETAILS_VIEW,
+      splitPercentage: 70,
+    },
+    analysisView: {
+      direction: 'column',
+      first: {
+        direction: 'row',
+        first: TREE_VIEW,
+        second: GRAPH_VIEW,
+        splitPercentage: 50,
+      },
+      second: {
+        direction: 'row',
+        first: DETAILS_VIEW,
+        second: DATA_EXPLORER,
+        splitPercentage: 50,
+      },
+      splitPercentage: 70,
+    },
+  };
+
+  // Handle preset layout selection
+  const selectPresetLayout = (presetKey) => {
+    const newLayout = layoutPresets[presetKey];
+    if (newLayout) {
+      setLayout(newLayout);
+    }
+  };
+
+  if (!layout) {
+    return <div>Loading workspace...</div>;
+  }
+
+  return (
+    <div className="phylograph-workspace">
+      <div className="workspace-toolbar">
+        <h1 className="app-title">PhyloGraph</h1>
+        <div className="workspace-controls">
+          <span>Layout:</span>
+          <ButtonGroup>
+            <Button
+              small={true}
+              icon="grid-view"
+              onClick={() => selectPresetLayout('default')}
+              title="Default Layout"
+            />
+            <Button
+              small={true}
+              icon="chart"
+              onClick={() => selectPresetLayout('treeOnly')}
+              title="Tree Only"
+            />
+            <Button
+              small={true}
+              icon="graph"
+              onClick={() => selectPresetLayout('graphOnly')}
+              title="Graph Only"
+            />
+            <Button
+              small={true}
+              icon="comparison"
+              onClick={() => selectPresetLayout('sideBySide')}
+              title="Side By Side"
+            />
+            <Button
+              small={true}
+              icon="properties"
+              onClick={() => selectPresetLayout('detailView')}
+              title="Detail View"
+            />
+            <Button
+              small={true}
+              icon="dashboard"
+              onClick={() => selectPresetLayout('analysisView')}
+              title="Analysis View"
+            />
+          </ButtonGroup>
+          
+          <Button
+            icon="cog"
+            small={true}
+            onClick={() => {
+              // Add Settings panel if not already in layout
+              if (layout === SETTINGS) return;
+              
+              if (typeof layout === 'string') {
+                setLayout({
+                  direction: 'row',
+                  first: layout,
+                  second: SETTINGS,
+                  splitPercentage: 80,
+                });
+              } else {
+                setLayout({
+                  direction: 'row',
+                  first: layout,
+                  second: SETTINGS,
+                  splitPercentage: 80,
+                });
+              }
+            }}
+            title="Settings"
+          />
+        </div>
+      </div>
+
+      <div className="mosaic-container">
+        {graphLoading ? (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <div>Loading data...</div>
+          </div>
+        ) : (
+          <Mosaic
+            renderTile={renderTile}
+            value={layout}
+            onChange={handleLayoutChange}
+            className="mosaic-blueprint-theme bp3-dark"
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PhyloGraphWorkspace;

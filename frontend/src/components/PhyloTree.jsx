@@ -1,111 +1,92 @@
-// ✅ PhyloTree.jsx — Bulletproof Fallback Tree with Beautiful Styling
+// ✅ PhyloTreeRadial.jsx — Radial Scientific Tree Viewer with Modal & Species Badge
 import React, { useRef, useEffect, useState } from 'react';
-import Tree from 'react-d3-tree';
-import fallbackTreeData from '../data/fallback_tree.json' assert { type: "json" };
+import * as d3 from 'd3';
+import fallbackTreeData from '../data/fallback_tree.json';
+import NodeModal from './NodeModal';
 
-const fallbackTreeData = {
-  name: "DemoOrtholog1",
-  children: [
-    {
-      name: "Gene1",
-      attributes: {
-        species: "Arabidopsis thaliana",
-        function: "Root development",
-      },
-    },
-    {
-      name: "FallbackGene1",
-      attributes: {
-        species: "Zea mays",
-        function: "Drought response",
-      },
-    },
-    {
-      name: "FallbackGene2",
-      attributes: {
-        species: "Oryza sativa",
-        function: "Grain size",
-      },
-    },
-  ],
-};
-
-const containerStyles = {
-  width: '100%',
-  height: '60vh',
-  backgroundColor: '#111',
-  borderRadius: '0.5rem',
-  padding: '1rem',
-};
-
-const nodeSvgShape = {
-  shape: 'rect',
-  shapeProps: {
-    width: 120,
-    height: 40,
-    x: -60,
-    y: -20,
-    rx: 10,
-    ry: 10,
-    fill: '#4ade80', // emerald-400
-    stroke: '#86efac', // emerald-300
-    strokeWidth: 2,
-  },
-};
-
-const textLayout = {
-  textAnchor: 'middle',
-  x: 0,
-  y: 5,
-  style: {
-    fill: 'white',
-    fontSize: '14px',
-    fontWeight: 'bold',
-  },
-};
-
-export default function PhyloTree({ groupId = "DemoOrtholog1", onNodeClick }) {
-  const treeRef = useRef();
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+export default function PhyloTreeRadial({ onNodeClick }) {
+  const svgRef = useRef();
+  const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
-    const dimensions = treeRef.current?.getBoundingClientRect();
-    if (dimensions) {
-      setTranslate({
-        x: dimensions.width / 2,
-        y: dimensions.height / 3,
-      });
-    }
+    drawRadialTree(fallbackTreeData);
   }, []);
 
+  const drawRadialTree = (data) => {
+    const width = 600;
+    const radius = width / 2;
+    const tree = d3.tree().size([2 * Math.PI, radius - 100]);
+    const root = d3.hierarchy(data);
+    tree(root);
+
+    d3.select(svgRef.current).selectAll("*").remove();
+    const svg = d3.select(svgRef.current)
+      .attr("viewBox", [-radius, -radius, width, width])
+      .style("font", "14px sans-serif");
+
+    const link = svg.append("g")
+      .attr("fill", "none")
+      .attr("stroke", "white")
+      .attr("stroke-width", 2)
+      .selectAll("path")
+      .data(root.links())
+      .join("path")
+      .attr("d", d3.linkRadial()
+        .angle(d => d.x)
+        .radius(d => d.y));
+
+    const node = svg.append("g")
+      .selectAll("g")
+      .data(root.descendants())
+      .join("g")
+      .attr("transform", d => `
+        rotate(${d.x * 180 / Math.PI - 90})
+        translate(${d.y},0)
+      `);
+
+    node.append("circle")
+      .attr("r", 5)
+      .attr("fill", "#4ade80")
+      .attr("stroke", "#86efac")
+      .attr("stroke-width", 2)
+      .on("click", (e, d) => {
+        setSelectedNode({
+          label: d.data.name,
+          id: d.data.name,
+          type: "Gene",
+          ...d.data.attributes,
+        });
+        if (onNodeClick) onNodeClick(d.data.name);
+      });
+
+    node.append("text")
+      .attr("dy", "0.31em")
+      .attr("x", d => d.x < Math.PI ? 10 : -10)
+      .attr("text-anchor", d => d.x < Math.PI ? "start" : "end")
+      .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
+      .text(d => d.data.name)
+      .attr("fill", "white")
+      .attr("font-weight", "bold");
+
+    node.append("text")
+      .attr("dy", "1.6em")
+      .attr("x", d => d.x < Math.PI ? 10 : -10)
+      .attr("text-anchor", d => d.x < Math.PI ? "start" : "end")
+      .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
+      .text(d => d.data.attributes?.species || "")
+      .attr("fill", "#aaa")
+      .attr("font-size", "10px");
+  };
+
   return (
-    <div ref={treeRef} style={containerStyles}>
-      <Tree
-        data={fallbackTreeData}
-        translate={translate}
-        orientation="vertical"
-        separation={{ siblings: 1, nonSiblings: 1.5 }}
-        zoomable
-        zoom={0.8}
-        nodeSize={{ x: 180, y: 120 }}
-        enableLegacyTransitions
-        transitionDuration={500}
-        nodeSvgShape={nodeSvgShape}
-        pathFunc="elbow"
-        styles={{
-          nodes: {
-            node: { name: textLayout, attributes: textLayout },
-            leafNode: { name: textLayout, attributes: textLayout },
-          },
-          links: {
-            stroke: '#4ade80',
-            strokeWidth: 2,
-          },
-        }}
-        onNodeClick={(node) => {
-          if (onNodeClick) onNodeClick(node.name);
-        }}
-      />
+    <div className="bg-black rounded-lg p-4 border border-zinc-700">
+      <svg ref={svgRef} width="100%" height="500px" />
+      {selectedNode && (
+        <NodeModal
+          node={selectedNode}
+          onClose={() => setSelectedNode(null)}
+        />
+      )}
     </div>
   );
 }

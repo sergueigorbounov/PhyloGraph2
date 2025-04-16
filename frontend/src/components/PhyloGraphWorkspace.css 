@@ -1,0 +1,140 @@
+/* PhyloGraphWorkspace.css */
+.phylograph-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+.workspace-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3d3d3d;
+  z-index: 2;
+  height: 48px;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #61dafb;
+  flex-shrink: 0;
+}
+
+.workspace-controls {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 12px;
+}
+
+.mosaic-container {
+  flex: 1;
+  position: relative;
+}
+
+/* Override default Mosaic styles for dark theme */
+.mosaic-blueprint-theme.bp3-dark {
+  background-color: #1e1e1e;
+}
+
+.mosaic-window {
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  margin: 3px;
+  overflow: hidden;
+}
+
+.mosaic-window-toolbar {
+  background-color: #2d2d2d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  height: 32px;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.mosaic-window-title {
+  font-weight: bold;
+  color: #e0e0e0;
+}
+
+.mosaic-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mosaic-window-body {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 32px);
+  overflow: hidden;
+}
+
+.mosaic-split {
+  background-color: #3a3a3a;
+}
+
+.mosaic-split:hover {
+  background-color: #4a4a4a;
+}
+
+.collapsed-window {
+  display: flex;
+  flex-direction: column;
+}
+
+.collapsed-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 16px;
+  text-align: center;
+  color: #aaa;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  color: white;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #61dafb;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Make each panel content fill the available space */
+.mosaic-window-body > div {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}

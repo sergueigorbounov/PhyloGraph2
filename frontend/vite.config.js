@@ -5,7 +5,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     hmr: {
-      overlay: false // 🔇 disables the red fullscreen overlay on dev errors
+      overlay: false
+    },
+    proxy: {
+      '/export': 'http://localhost:8000',
+      '/graph': 'http://localhost:8000',
+      '/sparql': 'http://localhost:8000',
+      '/rdf': 'http://localhost:8000',
+      '/owl': 'http://localhost:8000',
+      '/ask': 'http://localhost:8000',
+      '/brapi': 'http://localhost:8000',
+      '/csv-to-rdf': 'http://localhost:8000'
     }
   }
 })

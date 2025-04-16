@@ -1,0 +1,147 @@
+/* SettingsPanel.css */
+.settings-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    overflow: hidden;
+  }
+  
+  .settings-header {
+    padding: 16px;
+    background-color: #333;
+    border-bottom: 1px solid #444;
+  }
+  
+  .settings-header h2 {
+    margin: 0 0 8px 0;
+    color: #61dafb;
+    font-size: 1.5em;
+  }
+  
+  .settings-header p {
+    margin: 0;
+    color: #aaa;
+    font-size: 0.9em;
+  }
+  
+  .settings-content {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .settings-section {
+    background-color: #333;
+    padding: 16px;
+  }
+  
+  .settings-section h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #61dafb;
+    font-size: 1.1em;
+  }
+  
+  .bp3-form-group {
+    margin-bottom: 20px;
+  }
+  
+  .bp3-form-group:last-child {
+    margin-bottom: 0;
+  }
+  
+  .bp3-label {
+    color: #e0e0e0;
+  }
+  
+  .bp3-form-helper-text {
+    color: #aaa;
+    font-size: 0.85em;
+    margin-top: 4px;
+  }
+  
+  .bp3-switch {
+    margin-bottom: 12px;
+  }
+  
+  .bp3-switch .bp3-control-indicator {
+    background-color: #444;
+  }
+  
+  .bp3-switch input:checked ~ .bp3-control-indicator {
+    background-color: #137cbd;
+  }
+  
+  .data-sources-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .debug-warning {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: rgba(217, 130, 43, 0.15);
+    border-left: 3px solid #d9852b;
+    color: #f0c674;
+    font-size: 0.85em;
+    border-radius: 3px;
+  }
+  
+  .settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px;
+    background-color: #333;
+    border-top: 1px solid #444;
+  }
+  
+  .reset-button {
+    margin-right: auto;
+  }
+  
+  /* Override some Blueprint styles for our theme */
+  .bp3-input {
+    background-color: #444;
+    color: #e0e0e0;
+    box-shadow: none;
+    border: 1px solid #555;
+  }
+  
+  .bp3-input:focus {
+    box-shadow: 0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3);
+    border-color: #137cbd;
+  }
+  
+  .bp3-select select {
+    background-color: #444;
+    color: #e0e0e0;
+    border: 1px solid #555;
+  }
+  
+  .bp3-select select:hover {
+    background-color: #555;
+  }
+  
+  .bp3-slider-track {
+    background-color: #444;
+  }
+  
+  .bp3-slider-progress {
+    background-color: #137cbd;
+  }
+  
+  .bp3-slider-handle {
+    background-color: #ddd;
+  }
+  
+  .bp3-divider {
+    margin: 16px 0;
+    border-color: #444;
+  }

@@ -1,0 +1,22 @@
+<phyloxml xmlns="http://www.phyloxml.org">
+  <phylogeny rooted="true">
+    <clade>
+      <name>Root</name>
+      <taxonomy>
+        <scientific_name>Arabidopsis thaliana</scientific_name>
+      </taxonomy>
+      <clade>
+        <name>GeneA</name>
+        <taxonomy>
+          <scientific_name>Oryza sativa</scientific_name>
+        </taxonomy>
+      </clade>
+      <clade>
+        <name>GeneB</name>
+        <taxonomy>
+          <scientific_name>Zea mays</scientific_name>
+        </taxonomy>
+      </clade>
+    </clade>
+  </phylogeny>
+</phyloxml>

@@ -1,0 +1,22 @@
+@prefix ns1: <http://example.org/> .
+
+ns1:AT1G01010 a ns1:Gene ;
+    ns1:associatedWith <http://purl.obolibrary.org/obo/TO_0000207>,
+        <http://purl.obolibrary.org/obo/TO_0006001> ;
+    ns1:label "Gene Label",
+        "Gene1" ;
+    ns1:species "Arabidopsis thaliana",
+        "Zea mays" .
+
+ns1:AT2G37020 a ns1:Gene ;
+    ns1:associatedWith <http://purl.obolibrary.org/obo/TO_0000207> ;
+    ns1:label "Gene Label" ;
+    ns1:species "Arabidopsis thaliana",
+        "Zea mays" .
+
+ns1:Zm00001d027783 a ns1:Gene ;
+    ns1:associatedWith <http://purl.obolibrary.org/obo/TO_0000207> ;
+    ns1:label "Gene Label",
+        "Zm00001d027783" ;
+    ns1:species "Zea mays" .
+

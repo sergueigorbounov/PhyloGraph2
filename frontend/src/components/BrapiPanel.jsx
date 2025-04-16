@@ -1,16 +1,16 @@
-// 🔬 BrapiPanel.jsx – Fully Upgraded BrAPI Germplasm Panel with Species Badge, Autocomplete, RDF Preview, NodeModal Support
+// 🔬 BrapiPanel.jsx – Scientific BrAPI Germplasm UI Panel with Tree Linking
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Search, PlusCircle, Download, Network, FileText } from 'lucide-react';
 
 const GERMP_OPTS = [
-  "Chinese Spring",
-  "IR64",
-  "B73",
-  "Golden Promise",
-  "Tx430",
-  "Other..."
+  { name: "Chinese Spring", species: "wheat" },
+  { name: "IR64", species: "rice" },
+  { name: "B73", species: "maize" },
+  { name: "Golden Promise", species: "barley" },
+  { name: "Tx430", species: "sorghum" },
+  { name: "Other...", species: "wheat" }
 ];
 
 export default function BrapiPanel({ addLog }) {
@@ -20,6 +20,12 @@ export default function BrapiPanel({ addLog }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRDF, setSelectedRDF] = useState('');
+
+  const handlePresetSelect = (e) => {
+    const selected = GERMP_OPTS.find(opt => opt.name === e.target.value);
+    setQuery(selected?.name || '');
+    setSpecies(selected?.species || 'wheat');
+  };
 
   const searchGermplasm = async () => {
     if (!query) return toast.error('Enter a search term');
@@ -40,63 +46,98 @@ export default function BrapiPanel({ addLog }) {
   };
 
   const pushToRDFBackend = async (g) => {
-    try {
-      const res = await fetch('http://localhost:8000/graph', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([
-          {
-            gene_id: g.germplasmDbId,
-            gene_label: g.germplasmName,
-            trait_label: "Unknown",
-            trait_uri: "http://example.org/trait/unknown",
-            species: g.commonCropName || species || "unknown"
-          }
-        ])
-      });
-      if (res.ok) {
-        addLog?.(`🧬 Germplasm ${g.germplasmName} pushed to RDF backend`);
-      }
-    } catch (err) {
-      toast.error('RDF backend push failed');
-      console.error(err);
-    }
+    await fetch('http://localhost:8000/graph', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        {
+          gene_id: g.germplasmDbId,
+          gene_label: g.germplasmName,
+          trait_label: "Unknown",
+          trait_uri: "http://example.org/trait/unknown",
+          species: g.commonCropName || species || "unknown"
+        }
+      ])
+    });
+  };
+
+  const pushToTreeBackend = async (g) => {
+    await fetch('http://localhost:8000/graph/tree', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        {
+          gene_id: g.germplasmDbId,
+          species: g.commonCropName || species || "unknown",
+          group_id: "BrAPIGroup1"
+        }
+      ])
+    });
   };
 
   const addToGraph = async (g) => {
     const cy = window.cy;
     if (!cy || !g.germplasmDbId) return;
     const id = g.germplasmDbId;
+
     if (!cy.getElementById(id).length) {
       cy.add({
         group: 'nodes',
         data: {
           id,
           label: g.germplasmName || id,
-          color: '#f472b6',
           type: 'germplasm',
+          color: '#f472b6',
           external_link: `https://urgi.versailles.inrae.fr/faidare/germplasm/${id}`,
           ...g
         }
       });
-      cy.layout({ name: 'fcose', animate: true }).run();
-      cy.fit();
     }
+
+    // Add BrAPIGroup1 node if not exists
+    if (!cy.getElementById("BrAPIGroup1").length) {
+      cy.add({
+        group: 'nodes',
+        data: {
+          id: "BrAPIGroup1",
+          label: "BrAPIGroup1",
+          type: "group",
+          color: "#22d3ee"
+        }
+      });
+    }
+
+    // Visual link to group
+    if (!cy.getElementById(`${id}→BrAPIGroup1`).length) {
+      cy.add({
+        group: 'edges',
+        data: {
+          id: `${id}→BrAPIGroup1`,
+          source: id,
+          target: "BrAPIGroup1",
+          predicate: "http://example.org/ortholog/memberOf"
+        }
+      });
+    }
+
+    cy.layout({ name: 'fcose', animate: true }).run();
+    cy.fit();
+
     await pushToRDFBackend(g);
-    toast.success(`Added ${id} to graph + RDF`);
-    addLog?.(`🧬 Added germplasm: ${g.germplasmName} to graph and RDF store`);
+    await pushToTreeBackend(g);
+
+    toast.success(`Added ${id} to graph + RDF + Tree`);
+    addLog?.(`🧬 Added ${g.germplasmName} to graph and RDF + tree`);
   };
 
   const addAllToGraph = async () => {
-    for (const g of results) {
-      await addToGraph(g);
-    }
-    toast.success(`Added ${results.length} nodes to graph + RDF`);
-    addLog?.(`🧬 Added ${results.length} germplasm records to graph and RDF`);
+    for (const g of results) await addToGraph(g);
+    toast.success(`Added ${results.length} nodes to graph + RDF + tree`);
+    addLog?.(`🧬 Added ${results.length} germplasm records to graph, RDF, and tree`);
   };
 
   const generateRDF = (g) => {
-    return `@prefix ex: <http://example.org/> .\n\nex:${g.germplasmDbId} a ex:Germplasm ;\n  ex:name \"${g.germplasmName}\" ;\n  ex:accessionNumber \"${g.accessionNumber}\" ;\n  ex:hasCrop \"${g.commonCropName || species || 'unknown'}\" .`;
+    return `@prefix ex: <http://example.org/> .\n\nex:${g.germplasmDbId} a ex:Germplasm ;\n  ex:name "${g.germplasmName}" ;\n  ex:accessionNumber "${g.accessionNumber}" ;\n  ex:hasCrop "${g.commonCropName || species || 'unknown'}" .`;
   };
 
   const downloadRDF = (g) => {
@@ -129,12 +170,14 @@ export default function BrapiPanel({ addLog }) {
 
         <select
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={handlePresetSelect}
           className="bg-zinc-900 border border-zinc-700 px-3 py-2 rounded w-full text-sm"
         >
           <option value="">— Select Germplasm —</option>
           {GERMP_OPTS.map((opt, i) => (
-            <option key={i} value={opt}>{opt}</option>
+            <option key={i} value={opt.name}>
+              {opt.name}
+            </option>
           ))}
         </select>
 
@@ -155,7 +198,7 @@ export default function BrapiPanel({ addLog }) {
 
       {results.length > 0 && (
         <>
-          <button onClick={addAllToGraph} className="btn-dark w-fit text-sm flex items-center gap-1"><PlusCircle size={16} /> Add All to Graph + RDF</button>
+          <button onClick={addAllToGraph} className="btn-dark w-fit text-sm flex items-center gap-1"><PlusCircle size={16} /> Add All to Graph + RDF + Tree</button>
           <div className="text-sm mt-4 space-y-3 max-h-[50vh] overflow-y-auto">
             {results.map((g, i) => (
               <div key={i} className="bg-zinc-800 p-3 rounded">

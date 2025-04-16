@@ -205,3 +205,9 @@ input, textarea, button {
 .searchbar-wrapper button:hover {
   background: #333;
 }
+
+#modal-root > * {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: auto !important;
+}

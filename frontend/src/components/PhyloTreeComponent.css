@@ -1,0 +1,138 @@
+/* src/components/PhyloTreeComponent.css */
+.phylo-tree-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.phylo-tree-svg {
+  flex: 1;
+  background-color: white;
+  overflow: visible;
+}
+
+.phylo-tree-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.phylo-tree-error {
+  padding: 20px;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin: 10px;
+}
+
+.debug-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 100;
+  max-width: 250px;
+}
+
+.debug-overlay h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.debug-overlay .metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-top: 1px solid #ddd;
+}
+
+.layout-info {
+  font-size: 12px;
+  color: #555;
+}
+
+.scientific-mode-indicator {
+  font-size: 12px;
+  color: #2c3e50;
+  font-weight: bold;
+  background-color: #e7f5fe;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Node and link styles */
+.node circle {
+  fill: #999;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.node--internal circle {
+  fill: #555;
+}
+
+.node--internal text {
+  font-weight: bold;
+}
+
+.node--leaf text {
+  fill: #333;
+}
+
+.link {
+  fill: none;
+  stroke: #555;
+  stroke-opacity: 0.6;
+  stroke-width: 1.5px;
+}
+
+.persistent-debug-info {
+  margin-top: 4px;
+  padding: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #555;
+}

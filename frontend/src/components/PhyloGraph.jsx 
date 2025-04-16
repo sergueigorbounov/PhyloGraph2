@@ -1,0 +1,242 @@
+import React, { useState, useRef, useEffect } from 'react';
+import usePhyloTree from './hooks/usePhyloTree';
+import { PhyloDataService } from './services/PhyloDataService';
+import './styles/PhyloGraph.css';
+
+const PhyloGraph = () => {
+  const [selectedGene, setSelectedGene] = useState('');
+  const [layout, setLayout] = useState('radial');
+  const [isScientificMode, setIsScientificMode] = useState(false);
+  const [isDebugMode, setIsDebugMode] = useState(false);
+  const [treeData, setTreeData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+  
+  const containerRef = useRef(null);
+  const svgRef = useRef(null);
+  const controlsRef = useRef(null);
+
+  // Use our custom hook for tree rendering
+  const { 
+    initialize, 
+    updateLayout, 
+    updateScientificMode,
+    highlightNode,
+    exportSVG,
+    exportPNG,
+    exportNewick,
+    getTreeStats,
+    debug
+  } = usePhyloTree({
+    containerRef,
+    svgRef,
+    data: treeData,
+    onNodeSelect: setSelectedNode
+  });
+
+  // Load data when selected gene changes
+  useEffect(() => {
+    const loadData = async () => {
+      if (!selectedGene && !treeData) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        let data;
+        
+        if (selectedGene === 'demo') {
+          // Use demo data
+          data = await PhyloDataService.getDemoData();
+        } else if (selectedGene) {
+          // Fetch real data
+          data = await PhyloDataService.fetchPhylogeneticData(selectedGene);
+        }
+        
+        if (data) {
+          setTreeData(data);
+        }
+      } catch (err) {
+        console.error("Failed to load data:", err);
+        setError("Failed to load phylogenetic data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [selectedGene]);
+
+  // Update tree when data or layout changes
+  useEffect(() => {
+    if (treeData) {
+      initialize(treeData);
+    }
+  }, [treeData, initialize]);
+  
+  useEffect(() => {
+    updateLayout(layout);
+  }, [layout, updateLayout]);
+  
+  useEffect(() => {
+    updateScientificMode(isScientificMode);
+  }, [isScientificMode, updateScientificMode]);
+
+  // Handle form submissions
+  const handleGeneSubmit = (e) => {
+    e.preventDefault();
+    const geneInput = e.target.elements.geneId.value;
+    setSelectedGene(geneInput);
+  };
+
+  // Handle exports
+  const handleExportSVG = () => {
+    const filename = `phylo-${selectedGene || 'tree'}.svg`;
+    exportSVG(filename);
+  };
+  
+  const handleExportPNG = () => {
+    const filename = `phylo-${selectedGene || 'tree'}.png`;
+    exportPNG(filename);
+  };
+  
+  const handleExportNewick = () => {
+    const filename = `phylo-${selectedGene || 'tree'}.nwk`;
+    exportNewick(filename);
+  };
+
+  // Handle debug mode
+  const toggleDebugMode = () => {
+    setIsDebugMode(!isDebugMode);
+    if (!isDebugMode) {
+      debug();
+    }
+  };
+
+  return (
+    <div className="phylo-graph-container">
+      <header className="phylo-header">
+        <h1>PhyloGraph</h1>
+        <div className="language-selector">
+          <button className="active">anglais</button>
+          <button>français</button>
+        </div>
+        <div className="scientific-mode-toggle">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={isScientificMode} 
+              onChange={() => setIsScientificMode(!isScientificMode)} 
+            />
+            Scientific Mode
+          </label>
+        </div>
+      </header>
+
+      <nav className="phylo-nav">
+        <button className="nav-item active">Tree</button>
+        <button className="nav-item">SPARQL</button>
+        <button className="nav-item">BrAPI</button>
+        <button className="nav-item">Ontology</button>
+        <button className="nav-item">Convert</button>
+        <button className="nav-item">NLQ</button>
+      </nav>
+
+      <div className="phylo-content">
+        <div className="control-panel">
+          <form onSubmit={handleGeneSubmit}>
+            <div className="form-group">
+              <select 
+                name="geneId" 
+                defaultValue=""
+                onChange={(e) => e.target.value && setSelectedGene(e.target.value)}
+              >
+                <option value="" disabled>-- Select Gene ID --</option>
+                <option value="AT1G01010">AT1G01010</option>
+                <option value="GRMZM2G174784">GRMZM2G174784</option>
+                <option value="demo">Demo Data</option>
+              </select>
+              <button type="submit">Add</button>
+              <button type="button" onClick={() => setSelectedGene('')}>Clear</button>
+              <button type="button" onClick={() => setSelectedGene('demo')}>Demo</button>
+            </div>
+          </form>
+
+          <div className="layout-controls">
+            <label>Layout: </label>
+            <select 
+              value={layout} 
+              onChange={(e) => setLayout(e.target.value)}
+            >
+              <option value="radial">Radial</option>
+              <option value="horizontal">Horizontal</option>
+              <option value="vertical">Vertical</option>
+              <option value="rectangular">Rectangular</option>
+            </select>
+          </div>
+
+          <div className="export-controls">
+            <button onClick={handleExportSVG}>Export SVG</button>
+            <button onClick={handleExportPNG}>Export PNG</button>
+            <button onClick={handleExportNewick}>Export Newick</button>
+            <button onClick={toggleDebugMode}>Debug</button>
+          </div>
+        </div>
+
+        <div className="visualization-container" ref={containerRef}>
+          {loading && <div className="loading-overlay">Loading tree data...</div>}
+          {error && <div className="error-message">{error}</div>}
+          <svg ref={svgRef} className="phylo-tree-svg"></svg>
+        </div>
+
+        {selectedNode && (
+          <div className="node-details-panel">
+            <h3>Node Details</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Name:</td>
+                  <td>{selectedNode.name}</td>
+                </tr>
+                <tr>
+                  <td>ID:</td>
+                  <td>{selectedNode.id}</td>
+                </tr>
+                {selectedNode.support && (
+                  <tr>
+                    <td>Support:</td>
+                    <td>{selectedNode.support}</td>
+                  </tr>
+                )}
+                {selectedNode.type && (
+                  <tr>
+                    <td>Type:</td>
+                    <td>{selectedNode.type}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <button onClick={() => setSelectedNode(null)}>Close</button>
+          </div>
+        )}
+
+        {isDebugMode && (
+          <div className="debug-panel" ref={controlsRef}>
+            <h3>Debug Information</h3>
+            <div className="debug-stats">
+              {getTreeStats().map((stat, i) => (
+                <div key={i} className="stat-item">
+                  <span className="stat-label">{stat.label}:</span>
+                  <span className="stat-value">{stat.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PhyloGraph;

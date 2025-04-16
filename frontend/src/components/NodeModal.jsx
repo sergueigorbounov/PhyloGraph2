@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 import {
   Copy, Download, ExternalLink, FileText, BookOpen, Sparkles, X
@@ -10,10 +10,14 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
   const [query, setQuery] = useState(node.query || '');
   const [bindings, setBindings] = useState([]);
   const { addLog } = useLog();
+  const loggedRef = useRef(new Set());
 
   useEffect(() => {
-    addLog(`🧬 Node opened: ${node.label} (${node.id})`);
-  }, [node, addLog]);
+    if (node?.id && !loggedRef.current.has(node.id)) {
+      addLog(`🧬 Node opened: ${node.label} (${node.id})`);
+      loggedRef.current.add(node.id);
+    }
+  }, [node?.id]);
 
   const runQuery = async () => {
     try {
@@ -104,7 +108,6 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
           </p>
         </div>
 
-        {/* External Links */}
         <div className="grid grid-cols-2 gap-2 text-sm">
           {ensemblLink && <ExternalLinkButton href={ensemblLink} label="Ensembl" />}
           {pubmedLink && <ExternalLinkButton href={pubmedLink} label="PubMed" />}
@@ -114,21 +117,18 @@ export default function NodeModal({ node, onClose, setQueryResults, addNode, add
           {faidareLink && <ExternalLinkButton href={faidareLink} label="FAIDARE" />}
         </div>
 
-        {/* Metadata display */}
         <div className="mt-2 text-sm text-zinc-300 space-y-1">
           {node.commonCropName && <p><strong>Crop:</strong> {node.commonCropName}</p>}
           {node.accessionNumber && <p><strong>Accession:</strong> {node.accessionNumber}</p>}
           {node.synonym && <p><strong>Synonym:</strong> {node.synonym}</p>}
         </div>
 
-        {/* Actions */}
         <div className="mt-4 space-x-2">
           <ActionButton onClick={handleDownloadBib} icon={<Download className="w-4 h-4" />} label="Download Citation (.bib)" />
           <ActionButton onClick={() => navigator.clipboard.writeText(getCitation())} icon={<FileText className="w-4 h-4" />} label="Copy Citation (BibTeX)" />
           <ActionButton onClick={() => navigator.clipboard.writeText(JSON.stringify(node, null, 2))} icon={<Sparkles className="w-4 h-4" />} label="Copy JSON" />
         </div>
 
-        {/* SPARQL Panel */}
         <div>
           <textarea
             className="w-full h-28 p-2 border border-zinc-700 bg-zinc-800 text-zinc-100 rounded mt-2"

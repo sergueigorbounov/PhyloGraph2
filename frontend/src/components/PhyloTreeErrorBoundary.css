@@ -1,0 +1,114 @@
+/* PhyloTreeErrorBoundary.css */
+
+.phylo-tree-error-boundary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: #fff3f3;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    color: #721c24;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    overflow: auto;
+  }
+  
+  .error-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .phylo-tree-error-boundary h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    color: #721c24;
+  }
+  
+  .error-message {
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    max-width: 600px;
+  }
+  
+  .error-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .retry-button, .fallback-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .retry-button {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .retry-button:hover {
+    background-color: #2980b9;
+  }
+  
+  .fallback-button {
+    background-color: #f8f9fa;
+    color: #495057;
+    border: 1px solid #ced4da;
+  }
+  
+  .fallback-button:hover {
+    background-color: #e9ecef;
+  }
+  
+  .error-details {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 1rem;
+    text-align: left;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .error-details summary {
+    padding: 0.5rem 1rem;
+    background-color: #f6f8fa;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .error-technical {
+    padding: 1rem;
+    background-color: #f8f8f8;
+    overflow: auto;
+  }
+  
+  .error-stack, .component-stack {
+    background-color: #f1f1f1;
+    padding: 0.75rem;
+    border-radius: 4px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    margin: 0.5rem 0;
+    max-height: 200px;
+    color: #333;
+  }
+  
+  .fallback-container {
+    margin-top: 1.5rem;
+    width: 100%;
+    max-width: 800px;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    padding: 1rem;
+  }

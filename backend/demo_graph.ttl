@@ -1,0 +1,22 @@
+@prefix orth: <http://example.org/ortholog/> .
+@prefix ex: <http://example.org/> .
+
+ex:GeneX1 orth:memberOf "DemoOrtholog1" ;
+          orth:species "Arabidopsis thaliana" ;
+          orth:label "GeneX1" .
+
+ex:GeneX2 orth:memberOf "DemoOrtholog1" ;
+          orth:species "Zea mays" ;
+          orth:label "GeneX2" .
+
+ex:GeneY1 orth:memberOf "GroupY" ;
+          orth:species "Oryza sativa" ;
+          orth:label "GeneY1" .
+
+ex:GeneY2 orth:memberOf "GroupY" ;
+          orth:species "Hordeum vulgare" ;
+          orth:label "GeneY2" .
+        
+ex:GeneY3 orth:memberOf "GroupY" ;
+          orth:species "Brachypodium distachyon" ;
+          orth:label "GeneY3" .

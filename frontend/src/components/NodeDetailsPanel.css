@@ -1,0 +1,396 @@
+/* NodeDetailsPanel.css */
+
+/* Main panel container */
+.node-details-panel {
+  background: #1e1e1e;
+  color: #e0e0e0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.node-details-panel.embedded {
+  height: auto;
+  max-height: 500px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Panel header */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+.node-id {
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #6da4ff;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+/* Custom button component */
+.custom-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #3f3f3f;
+  color: #e0e0e0;
+  border: 1px solid #555;
+  border-radius: 3px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  font-size: 14px;
+}
+
+.custom-button:hover {
+  background: #4a4a4a;
+  border-color: #666;
+}
+
+.custom-button.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.custom-button.minimal {
+  background: transparent;
+  border-color: transparent;
+}
+
+.custom-button.minimal:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.button-icon {
+  opacity: 0.9;
+}
+
+/* Custom tabs component */
+.custom-tabs {
+  background: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+.tabs-header {
+  display: flex;
+  overflow-x: auto;
+}
+
+.tab-button {
+  padding: 10px 16px;
+  background: transparent;
+  color: #aaa;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e0e0e0;
+}
+
+.tab-button.active {
+  color: #6da4ff;
+  border-bottom-color: #6da4ff;
+}
+
+.tab-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Custom card component */
+.custom-card {
+  background: #2a2a2a;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom tag component */
+.custom-tag {
+  display: inline-block;
+  background: #374151;
+  color: #e0e0e0;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.custom-tag.minimal {
+  background: rgba(255, 255, 255, 0.1);
+  color: #aaa;
+}
+
+.custom-tag.large {
+  font-size: 14px;
+  padding: 4px 10px;
+}
+
+/* Custom table component */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+.custom-table th {
+  background: #333;
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.custom-table.striped tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.custom-table tr:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Gene details styles */
+.gene-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.gene-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.description {
+  margin: 8px 0 16px;
+  line-height: 1.5;
+  color: #c0c0c0;
+}
+
+.gene-location {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.location-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.location-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.location-value {
+  font-weight: 500;
+}
+
+.section-title {
+  font-weight: 500;
+  color: #6da4ff;
+  margin: 16px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #444;
+}
+
+/* Lists */
+.go-terms, .ortholog-list, .member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.go-term-item, .ortholog-item, .member-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.go-term-name {
+  color: #c0c0c0;
+}
+
+/* Conservation bars */
+.conservation-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.conservation-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.conservation-label {
+  width: 150px;
+  font-size: 14px;
+}
+
+.conservation-bar-container {
+  flex: 1;
+  height: 8px;
+  background: #3a3a3a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.conservation-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4b8ff9, #38cfff);
+  border-radius: 4px;
+}
+
+.conservation-value {
+  width: 50px;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Publications */
+.publication-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.publication-item {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.publication-item:last-child {
+  border-bottom: none;
+}
+
+.publication-title {
+  margin-bottom: 4px;
+}
+
+.publication-title a {
+  color: #6da4ff;
+  text-decoration: none;
+}
+
+.publication-title a:hover {
+  text-decoration: underline;
+}
+
+.publication-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* Expression tab */
+.expression-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #272727;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.placeholder-message {
+  margin-bottom: 16px;
+  color: #999;
+}
+
+/* Empty states */
+.node-details-empty, .node-details-loading, .node-details-error {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: #aaa;
+}
+
+.empty-message, .placeholder-message {
+  max-width: 300px;
+}
+
+.empty-icon {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* Spinner animation */
+.spinner {
+  animation: spin 1.5s linear infinite;
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #6da4ff;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Node metadata */
+.node-metadata {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.metadata-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.metadata-value {
+  font-weight: 500;
+}
